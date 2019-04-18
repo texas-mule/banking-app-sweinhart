@@ -1,4 +1,4 @@
-package com.revature.bankingApp.domain;
+package com.revature.domain;
 
 public class Login {
 	static private String username;

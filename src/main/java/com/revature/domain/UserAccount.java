@@ -1,9 +1,9 @@
-package com.revature.bankingApp.domain;
+package com.revature.domain;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.revature.bankingApp.service.AccountRequestDbSvcImpl;
+import com.revature.service.AccountRequestDbSvcImpl;
 
 public class UserAccount implements Comparable<UserAccount>{
 	private Integer id;

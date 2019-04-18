@@ -1,10 +1,10 @@
-package com.revature.bankingApp.domain;
+package com.revature.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.revature.bankingApp.service.TransactionDbSvcImpl;
+import com.revature.service.TransactionDbSvcImpl;
 
 public class BankAccount {
 	private Integer id;

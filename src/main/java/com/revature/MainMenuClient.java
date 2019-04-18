@@ -1,4 +1,4 @@
-package com.revature.bankingApp;
+package com.revature;
 
 import java.util.List;
 import java.text.DecimalFormat;

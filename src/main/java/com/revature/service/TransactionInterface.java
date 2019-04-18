@@ -1,8 +1,8 @@
-package com.revature.bankingApp.service;
+package com.revature.service;
 
 import java.util.List;
 
-import com.revature.bankingApp.domain.Transaction;
+import com.revature.domain.Transaction;
 
 public interface TransactionInterface {
 	boolean add(Transaction transaction);

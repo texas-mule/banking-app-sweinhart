@@ -1,4 +1,4 @@
-package com.revature.bankingApp.domain;
+package com.revature.domain;
 
 import java.util.HashMap;
 

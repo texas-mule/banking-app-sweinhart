@@ -1,7 +1,7 @@
-package com.revature.bankingApp.service;
+package com.revature.service;
 
 import java.util.List;
-import com.revature.bankingApp.domain.BankAccount;
+import com.revature.domain.BankAccount;
 
 public interface BankAccountInterface {
 	boolean add(BankAccount account);

@@ -1,12 +1,12 @@
-package com.revature.bankingApp.domain;
+package com.revature.domain;
 
 import java.text.DecimalFormat;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-import com.revature.bankingApp.MainMenuAdmin;
-import com.revature.bankingApp.MainMenuClient;
-import com.revature.bankingApp.MainMenuEmployee;
-import com.revature.bankingApp.service.BankAccountDbSvcImpl;
+import com.revature.MainMenuAdmin;
+import com.revature.MainMenuClient;
+import com.revature.MainMenuEmployee;
+import com.revature.service.BankAccountDbSvcImpl;
 import java.util.InputMismatchException;
 import java.util.List;
 

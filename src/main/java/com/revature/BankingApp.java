@@ -1,6 +1,6 @@
-package com.revature.bankingApp;
+package com.revature;
 
-import com.revature.bankingApp.domain.Bank;
+import com.revature.domain.Bank;
 import java.util.Scanner;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;

@@ -1,4 +1,4 @@
-package com.revature.bankingApp.domain;
+package com.revature.domain;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
 
-import com.revature.bankingApp.service.AccountRequestDbSvcImpl;
-import com.revature.bankingApp.service.BankDbSvcImpl;
-import com.revature.bankingApp.service.UserAccountDbSvcImpl;
+import com.revature.service.AccountRequestDbSvcImpl;
+import com.revature.service.BankDbSvcImpl;
+import com.revature.service.UserAccountDbSvcImpl;
 
 public class Bank {
 	static Logger logger = Logger.getLogger(Bank.class);

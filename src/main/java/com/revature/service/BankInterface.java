@@ -1,6 +1,6 @@
-package com.revature.bankingApp.service;
+package com.revature.service;
 
-import com.revature.bankingApp.domain.Bank;
+import com.revature.domain.Bank;
 
 public interface BankInterface {
 	boolean add(String bankName);

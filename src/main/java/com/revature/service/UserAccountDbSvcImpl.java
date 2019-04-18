@@ -1,6 +1,6 @@
-package com.revature.bankingApp.service;
+package com.revature.service;
 
-import com.revature.bankingApp.domain.UserAccount;
+import com.revature.domain.UserAccount;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;

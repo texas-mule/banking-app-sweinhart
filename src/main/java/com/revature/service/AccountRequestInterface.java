@@ -1,8 +1,8 @@
-package com.revature.bankingApp.service;
+package com.revature.service;
 
 import java.util.List;
 
-import com.revature.bankingApp.domain.AccountRequest.Request;
+import com.revature.domain.AccountRequest.Request;
 
 public interface AccountRequestInterface {
 	boolean add(Request request);
