@@ -5,13 +5,13 @@ import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-import com.revature.bankingApp.domain.AccountRequest;
-import com.revature.bankingApp.domain.AccountRequest.Request;
-import com.revature.bankingApp.domain.Bank;
-import com.revature.bankingApp.domain.BankAccount;
-import com.revature.bankingApp.domain.BankTransactions;
-import com.revature.bankingApp.domain.UserAccount;
-import com.revature.bankingApp.service.UserAccountDbSvcImpl;
+import com.revature.domain.AccountRequest;
+import com.revature.domain.AccountRequest.Request;
+import com.revature.domain.Bank;
+import com.revature.domain.BankAccount;
+import com.revature.domain.BankTransactions;
+import com.revature.domain.UserAccount;
+import com.revature.service.UserAccountDbSvcImpl;
 
 public class MainMenuClient {
 

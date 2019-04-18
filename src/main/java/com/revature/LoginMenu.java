@@ -3,9 +3,9 @@ package com.revature;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-import com.revature.bankingApp.domain.Bank;
-import com.revature.bankingApp.domain.UserAccount;
-import com.revature.bankingApp.service.UserAccountDbSvcImpl;
+import com.revature.domain.Bank;
+import com.revature.domain.UserAccount;
+import com.revature.service.UserAccountDbSvcImpl;
 
 public class LoginMenu {
 	private static Scanner keyboard = new Scanner(System.in);
