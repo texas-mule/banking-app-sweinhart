@@ -7,6 +7,7 @@ public interface BankAccountInterface {
 	boolean add(BankAccount account);
 	boolean delete(BankAccount account);
 	boolean update(BankAccount account);
-	List<BankAccount> get(String username);
+	BankAccount getAccount(Integer accountNumber);
+	List<BankAccount> getClientAccounts(String username);
 	List<BankAccount> getAll();
 }

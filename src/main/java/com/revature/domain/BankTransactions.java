@@ -6,7 +6,11 @@ import org.apache.log4j.Logger;
 import com.revature.MainMenuAdmin;
 import com.revature.MainMenuClient;
 import com.revature.MainMenuEmployee;
+import com.revature.domain.AccountRequest.Request;
+import com.revature.service.AccountRequestDbSvcImpl;
 import com.revature.service.BankAccountDbSvcImpl;
+import com.revature.service.UserAccountDbSvcImpl;
+
 import java.util.InputMismatchException;
 import java.util.List;
 
@@ -218,5 +222,70 @@ public class BankTransactions {
 			System.out.println("Ending Balance\t\t\t\t\t$" + df.format(tempBalance));
 		}
 		logger.info("View History Completed");
+	}
+
+	public static void approvePendingRequests(Request request, boolean approve) {
+		// TODO Auto-generated method stub
+		AccountRequestDbSvcImpl requestImpl = AccountRequestDbSvcImpl.getInstance();
+		UserAccountDbSvcImpl userImpl = UserAccountDbSvcImpl.getInstance();
+		UserAccount account = new UserAccount();
+		if (approve) {
+			BankAccount newAccount = new BankAccount();
+			newAccount.setAccountType(request.getAccountType());
+			newAccount = Bank.assignAccountNumber(newAccount);
+			for (Integer i : request.getUserIds()) {
+				newAccount.getAccountOwners().add(request.getUserIds().get(i));
+				account = userImpl.getById(i);
+				switch (account.getAccessLvl()) {
+				case 1:
+					for (UserAccount u : Bank.getClients()) {
+						if (u.getId() == account.getId()) {
+							u.getAccounts().add(newAccount);
+						}
+					}
+					break;
+				case 2:
+					for (UserAccount u : Bank.getEmployees()) {
+						if (u.getId() == account.getId()) {
+							u.getAccounts().add(newAccount);
+						}
+					}
+					break;
+				case 3:
+					Bank.getAdmin().getAccounts().add(newAccount);
+					break;
+				default:
+					logger.info("Error Adding Bank Account to Client");
+					System.exit(1);
+				}
+			}			
+		}
+		Bank.getAccountRequests().remove(request);
+		requestImpl.delete(request);
+		for (Integer i : request.getUserIds()) {
+			account = userImpl.getById(i);
+			switch (account.getAccessLvl()) {
+			case 1:
+				for (UserAccount u : Bank.getClients()) {
+					if (u.getId() == account.getId()) {
+						u.getPendingRequests().getAccountRequests().remove(request);
+					}
+				}
+				break;
+			case 2:
+				for (UserAccount u : Bank.getEmployees()) {
+					if (u.getId() == account.getId()) {
+						u.getPendingRequests().getAccountRequests().remove(request);
+					}
+				}
+				break;
+			case 3:
+				Bank.getAdmin().getPendingRequests().getAccountRequests().remove(request);
+				break;
+			default:
+				logger.info("Error while deleting Pending Account Request");
+				System.exit(1);
+			}
+		}
 	}
 }

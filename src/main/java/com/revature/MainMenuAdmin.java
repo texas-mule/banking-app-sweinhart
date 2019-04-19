@@ -9,7 +9,7 @@ import com.revature.domain.UserAccount;
 
 public class MainMenuAdmin extends MainMenuEmployee {
 
-	private static Scanner keyboard = new Scanner(System.in);
+	private static Scanner keyboard;
 	private static Logger logger = Logger.getLogger(MainMenuAdmin.class);
 	private UserAccount user;
 	

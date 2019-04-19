@@ -24,27 +24,26 @@ public class MainMenuClient {
 		// TODO Auto-generated constructor stub
 		this.user = user;
 	}
-	
+
 	public void displayMainMenu() {
 		displayClientMenu();
 	}
 
 	public void displayClientMenu() {
 		logger.info("Starting Client Main Menu");
-		System.out.println("\t\t\t\t" + Bank.getBankName() + "\t\t Routing Number: " + Bank.getRoutingNumber());
+		System.out.println("\n\t\t\t" + Bank.getBankName() + "\t Routing Number: " + Bank.getRoutingNumber());
 		int choice = 0;
 		boolean hasAccounts;
 		if (user.getAccounts().isEmpty())
 			hasAccounts = false;
 		else
 			hasAccounts = true;
-		System.out.println("Client Starting Menu");
+		System.out.println("Client Menu");
 		System.out.println("1 - Request to Open New Account");
-		if (hasAccounts) {
-			System.out.println("2 - View Accounts");
-		}
-		System.out.println("3 - Logout");
-		System.out.println("9 - Exit");
+		System.out.println("2 - View Accounts");
+		if (user.getAccessLvl() > 1)
+			System.out.println("3 - Main Menu");
+		System.out.println("9 - Logout");
 		System.out.print("Choice? ");
 		try {
 			choice = keyboard.nextInt();
@@ -60,18 +59,21 @@ public class MainMenuClient {
 			if (hasAccounts) {
 				viewAccounts();
 			} else {
-				System.out.println("Invalid Choice.");
+				System.out.println("You Have No Open Accounts");
 				displayClientMenu();
 			}
 			break;
 		case 3:
+			if (user.getAccessLvl() == 1) {
+				System.out.println("Invalid Choice.");
+				displayClientMenu();
+			} else
+				displayMainMenu();
+			break;
+		case 9:
 			LoginMenu login = new LoginMenu();
 			login.displayMenu();
 			break;
-		case 9:
-			logger.info("User Selected Exit.");
-			System.out.println("Exiting Application");
-			System.exit(0);
 		default:
 			System.out.println("Invalid Choice.");
 			displayClientMenu();
@@ -104,7 +106,7 @@ public class MainMenuClient {
 	protected void accountOperationsMenu(BankAccount account) {
 		// TODO Auto-generated method stub
 		int choice;
-		logger.info("Client Account Operations Menu Started");
+		logger.info("Account Operations Menu Started");
 		System.out.print("\n" + account.getAccountType() + " Account: " + account.getAccountNumber());
 		System.out.print("\t\t\t\t\tBalance: $" + df.format(account.getBalance()));
 		System.out.println("\nAccount Operations Menu");

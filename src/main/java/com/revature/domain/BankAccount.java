@@ -11,14 +11,15 @@ public class BankAccount {
 	private Integer accountNumber;
 	private String accountType;  //checking or savings
 	private Double balance = 0.0;
-	private List<UserAccount> accountOwners = new ArrayList<UserAccount>();
+	private List<Integer> accountOwnerIds = new ArrayList<Integer>();
 	private List<Transaction> transactions = new ArrayList<Transaction>();
 	
 	public List<Transaction> getTransactions() {
-		TransactionDbSvcImpl impl = TransactionDbSvcImpl.getInstance();
-		transactions = impl.getAll(accountNumber);
 		Collections.sort(transactions);
 		return transactions;
+	}
+	public void setTransactions(List<Transaction> transactions) {
+		this.transactions = transactions;
 	}
 	public void addTransaction(Transaction transaction) {
 		this.transactions.add(transaction);
@@ -53,11 +54,11 @@ public class BankAccount {
 	public void setBalance(Double balance) {
 		this.balance = balance;
 	}
-	public List<UserAccount> getAccountOwners() {
-		return accountOwners;
+	public List<Integer> getAccountOwners() {
+		return accountOwnerIds;
 	}
-	public void setAccountOwners(List<UserAccount> accountOwners) {
-		this.accountOwners = accountOwners;
+	public void setAccountOwners(List<Integer> accountOwners) {
+		this.accountOwnerIds = accountOwners;
 	}
 	
 }

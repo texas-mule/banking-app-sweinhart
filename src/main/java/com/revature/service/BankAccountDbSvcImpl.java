@@ -15,7 +15,10 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface{
 	private static BankAccountDbSvcImpl instance = new BankAccountDbSvcImpl();
     private static Connection conn;
 
-
+    public static BankAccountDbSvcImpl getInstance() {
+		// TODO Auto-generated method stub
+		return instance;
+	}
 
 	public boolean add(BankAccount account) {
 		// TODO Auto-generated method stub
@@ -27,20 +30,20 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface{
 		return false;
 	}
 
-	public List<BankAccount> get(String username) {
+	public List<BankAccount> getClientAccounts(String username) {
 		// TODO Auto-generated method stub
 		List<BankAccount> accounts = new ArrayList<BankAccount>();
 		return accounts;
+	}
+	
+	public BankAccount getAccount(Integer accountNumber) {
+		BankAccount account = new BankAccount();
+		return account;
 	}
 
 	public boolean update(BankAccount account) {
 		// TODO Auto-generated method stub
 		return false;
-	}
-
-	public static BankAccountDbSvcImpl getInstance() {
-		// TODO Auto-generated method stub
-		return instance;
 	}
 
 	public List<BankAccount> getAll() {

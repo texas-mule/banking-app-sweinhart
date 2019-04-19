@@ -18,6 +18,7 @@ public class UserAccount implements Comparable<UserAccount>{
 	private String phone;
 	private String email;
 	private Login login;
+	private String socialSecurity;
 	private String dlState;
 	private String dlNumber;
 	private String dlExp;
@@ -85,8 +86,6 @@ public class UserAccount implements Comparable<UserAccount>{
 	public void setSocialSecurity(String socialSecurity) {
 		this.socialSecurity = socialSecurity;
 	}
-
-	private String socialSecurity;
 
 	public String getCity() {
 		return city;

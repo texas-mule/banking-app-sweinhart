@@ -1,18 +1,19 @@
 package com.revature.domain;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
 
 import com.revature.service.AccountRequestDbSvcImpl;
-import com.revature.service.BankDbSvcImpl;
+import com.revature.service.BankAccountDbSvcImpl;
+import com.revature.service.TransactionDbSvcImpl;
 import com.revature.service.UserAccountDbSvcImpl;
 
 public class Bank {
 	static Logger logger = Logger.getLogger(Bank.class);
-	private static Integer id;
 	private static final String bankName = "Revature Bank";
 	private static final Integer routingNumber = 123456789;
 	private static Integer nextAccountNumber = 10000000;
@@ -21,16 +22,54 @@ public class Bank {
 	private static List<UserAccount> clients = new ArrayList<UserAccount>();
 	private static List<AccountRequest.Request> accountRequests = new ArrayList<AccountRequest.Request>();
 	private static List<BankAccount> accounts = new ArrayList<BankAccount>();
+	private static Scanner keyboard;
 
 	public static void initializeBank() {
 		// TODO Auto-generated constructor stub
-		BankDbSvcImpl bankDb = BankDbSvcImpl.getInstance();
-		bankDb.get(bankName);
+		AccountRequestDbSvcImpl requestImpl = AccountRequestDbSvcImpl.getInstance();
+		BankAccountDbSvcImpl accountImpl = BankAccountDbSvcImpl.getInstance();
+		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
+		UserAccountDbSvcImpl userImpl = UserAccountDbSvcImpl.getInstance();		
+		accountRequests = requestImpl.getAll();
+		UserAccount userAccount = new UserAccount();
+		for (AccountRequest.Request request : accountRequests) {
+			for (Integer id : request.getUserIds()) {
+				userAccount = userImpl.getById(id);
+				AccountRequest userRequest = new AccountRequest();
+				userRequest = userAccount.getPendingRequests();
+				userRequest.addAccountRequest(request);
+				userAccount.setPendingRequests(userRequest);
+			}
+		}
+		List<BankAccount> allAccounts = accountImpl.getAll();
+		List<UserAccount> allUsers = userImpl.getAll();
+		for (BankAccount account : allAccounts) {
+			account.setTransactions(transImpl.getAll(account.getAccountNumber()));
+			for (Integer i : account.getAccountOwners()) {
+				userAccount = userImpl.getById(i);
+				userAccount.getAccounts().add(account);
+			}
+		}
+		for (UserAccount user : allUsers) {
+			switch(user.getAccessLvl()) {
+			case 1:
+				clients.add(user);
+				break;
+			case 2:
+				employees.add(user);
+				break;
+			case 3:
+				admin = user;
+				break;
+			default:
+				logger.info("Error while assigning bank clients");
+				System.exit(1);
+			}
+		}
 	}
 
-	public static List<AccountRequest.Request> getPendingClients() {
-		AccountRequestDbSvcImpl impl = AccountRequestDbSvcImpl.getInstance();
-		accountRequests = impl.getAll();
+	public static List<AccountRequest.Request> getAccountRequests() {
+		Collections.sort(accountRequests);
 		return accountRequests;
 	}
 	
@@ -42,14 +81,6 @@ public class Bank {
 			logger.info("Failed to Add Account Request to DB");
 			System.exit(1);
 		}
-	}
-
-	public static Integer getId() {
-		return id;
-	}
-
-	public static void setId(Integer id) {
-		Bank.id = id;
 	}
 
 	public static String getBankName() {
@@ -91,6 +122,18 @@ public class Bank {
 	public static List<BankAccount> getAccounts() {
 		return accounts;
 	}
+	
+	public static BankAccount assignAccountNumber(BankAccount account) {
+		account.setAccountNumber(nextAccountNumber);
+		nextAccountNumber++;
+		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
+		impl.add(account);
+		return account;
+	}
+	
+	public static void addAccount(BankAccount account) {
+		accounts.add(account);
+	}
 
 	public static void setAccounts(List<BankAccount> accounts) {
 		Bank.accounts = accounts;
@@ -118,8 +161,8 @@ public class Bank {
 		String dlNumber = "";
 		String dlExp = "";
 		String ssNumber = "";
-		Scanner keyboard = new Scanner(System.in);
-		System.out.println("\nAccount Setup:");
+		keyboard = new Scanner(System.in);
+		System.out.println("\nAccount Setup");
 		boolean valid = true;
 		do {
 			System.out.print("Create Username: ");
@@ -324,8 +367,8 @@ public class Bank {
 		login.setUsername(username);
 		login.setPassword(password);
 		account.setLogin(login);
-		account.setFirstName(firstName);
-		account.setLastName(lastName);
+		account.setFirstName(firstName.toUpperCase());
+		account.setLastName(lastName.toUpperCase());
 		account.setAddress1(address1);
 		account.setAddress2(address2);
 		account.setCity(city);

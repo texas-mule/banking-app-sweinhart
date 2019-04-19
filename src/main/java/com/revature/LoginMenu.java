@@ -8,7 +8,7 @@ import com.revature.domain.UserAccount;
 import com.revature.service.UserAccountDbSvcImpl;
 
 public class LoginMenu {
-	private static Scanner keyboard = new Scanner(System.in);
+	private static Scanner keyboard;
 	private static Logger logger = Logger.getLogger(LoginMenu.class);
 
 	public LoginMenu() {
@@ -18,7 +18,8 @@ public class LoginMenu {
 	public void displayMenu() {
 		// TODO Auto-generated method stub
 		UserAccount user = new UserAccount();
-		System.out.println("\n\t\t\t\t" + Bank.getBankName() + "\t\t Routing Number: " + Bank.getRoutingNumber());
+		keyboard  = new Scanner(System.in);
+		System.out.println("\n\t\t\t" + Bank.getBankName() + "\t Routing Number: " + Bank.getRoutingNumber());
 		int choice = 0;
 		System.out.println("Login Menu");
 		System.out.println("1 - Login");
@@ -35,8 +36,10 @@ public class LoginMenu {
 		switch (choice) {
 		case 1:
 			user = login();
+			break;
 		case 2:
 			user = newAccount(1);
+			break;
 		case 9:
 			logger.info("User Selected Exit Application!");
 			keyboard.close();
@@ -82,9 +85,10 @@ public class LoginMenu {
 	private UserAccount login() {
 		// TODO Auto-generated method stub
 		UserAccount account = new UserAccount();
+		keyboard = new Scanner(System.in);
 		String username;
 		String password;
-		System.out.print("Username: ");
+		System.out.print("\nUsername: ");
 		username = keyboard.nextLine();
 		System.out.print("Password: ");
 		password = keyboard.nextLine();
