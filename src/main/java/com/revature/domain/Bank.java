@@ -17,11 +17,9 @@ public class Bank {
 	private static final String bankName = "Revature Bank";
 	private static final Integer routingNumber = 123456789;
 	private static Integer nextAccountNumber = 10000000;
-	private static UserAccount admin = new UserAccount();
-	private static List<UserAccount> employees = new ArrayList<UserAccount>();
-	private static List<UserAccount> clients = new ArrayList<UserAccount>();
+	private static List<UserAccount> userAccounts = new ArrayList<UserAccount>();
 	private static List<AccountRequest.Request> accountRequests = new ArrayList<AccountRequest.Request>();
-	private static List<BankAccount> accounts = new ArrayList<BankAccount>();
+	private static List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 	private static Scanner keyboard;
 
 	public static void initializeBank() {
@@ -42,6 +40,7 @@ public class Bank {
 			}
 		}
 		List<BankAccount> allAccounts = accountImpl.getAll();
+		int accountNumber = 0;
 		List<UserAccount> allUsers = userImpl.getAll();
 		for (BankAccount account : allAccounts) {
 			account.setTransactions(transImpl.getAll(account.getAccountNumber()));
@@ -49,22 +48,13 @@ public class Bank {
 				userAccount = userImpl.getById(i);
 				userAccount.getAccounts().add(account);
 			}
+			if (account.getAccountNumber() > accountNumber)
+				accountNumber = account.getAccountNumber();
 		}
+		accountNumber++;
+		nextAccountNumber = accountNumber;
 		for (UserAccount user : allUsers) {
-			switch(user.getAccessLvl()) {
-			case 1:
-				clients.add(user);
-				break;
-			case 2:
-				employees.add(user);
-				break;
-			case 3:
-				admin = user;
-				break;
-			default:
-				logger.info("Error while assigning bank clients");
-				System.exit(1);
-			}
+			userAccounts.add(user);
 		}
 	}
 
@@ -95,32 +85,16 @@ public class Bank {
 		return nextAccountNumber;
 	}
 
-	public static UserAccount getAdmin() {
-		return admin;
+	public static List<UserAccount> getUserAccounts() {
+		return userAccounts;
 	}
 
-	public static void setAdmin(UserAccount admin) {
-		Bank.admin = admin;
-	}
-
-	public static List<UserAccount> getEmployees() {
-		return employees;
-	}
-
-	public static void setEmployees(List<UserAccount> employees) {
-		Bank.employees = employees;
-	}
-
-	public static List<UserAccount> getClients() {
-		return clients;
-	}
-
-	public static void setClients(List<UserAccount> clients) {
-		Bank.clients = clients;
+	public static void setUserAccounts(List<UserAccount> userAccounts) {
+		Bank.userAccounts = userAccounts;
 	}
 
 	public static List<BankAccount> getAccounts() {
-		return accounts;
+		return bankAccounts;
 	}
 	
 	public static BankAccount assignAccountNumber(BankAccount account) {
@@ -132,19 +106,18 @@ public class Bank {
 	}
 	
 	public static void addAccount(BankAccount account) {
-		accounts.add(account);
+		bankAccounts.add(account);
 	}
 
 	public static void setAccounts(List<BankAccount> accounts) {
-		Bank.accounts = accounts;
+		Bank.bankAccounts = accounts;
 	}
 
-	public static UserAccount createAccount(int accessLvl) {
+	public static UserAccount createUserAccount(int accessLvl) {
 		// TODO Auto-generated method stub
 		logger.info("Creating New User Account");
 		UserAccount account = new UserAccount();
 		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
-		UserAccount temp = new UserAccount();
 		Login login = new Login();
 		String firstName = "";
 		String lastName = "";
@@ -168,15 +141,7 @@ public class Bank {
 			System.out.print("Create Username: ");
 			username = keyboard.nextLine();
 			username = username.trim();
-			if (username.length() < 6) {
-				System.out.println("Username must be at least 6 characters.");
-				valid = false;
-			}
-			temp = impl.get(username);
-			if (temp.getId() != null) {
-				System.out.println("Username is already taken.");
-				valid = false;
-			}
+			valid = validateUsername(username);
 		} while (!valid);
 		String confirm = "";
 		do {
@@ -185,13 +150,6 @@ public class Bank {
 				password = keyboard.nextLine();
 				password = password.trim();
 				valid = validatePassword(password);
-				if (!valid) {
-					System.out.println("Password must be at least 8 characters in length,");
-					System.out.println("Contain at least 1 uppercase letter,");
-					System.out.println("Contain at least 1 lowercase letter,");
-					System.out.println("Contain at least 1 number, and");
-					System.out.println("Contain at least 1 special character\n");
-				}
 			} while (!valid);
 			System.out.print("Confirm Password: ");
 			confirm = keyboard.nextLine();
@@ -200,24 +158,17 @@ public class Bank {
 			}
 		} while (!confirm.equals(password));
 		do {
-			valid = true;
 			System.out.print("Enter First Name: ");
 			firstName = keyboard.nextLine();
 			firstName = firstName.trim();
-			if (firstName.length() < 2 || !validateLettersOnly(firstName)) {
-				System.out.println("Invalid First Name.");
-				valid = false;
-			}
+			valid = validateName(firstName);
 		} while (!valid);
 		do {
-			valid = true;
+
 			System.out.print("Enter Last Name: ");
 			lastName = keyboard.nextLine();
 			lastName = lastName.trim();
-			if (lastName.length() < 2 || !validateLettersOnly(lastName)) {
-				System.out.println("Invalid Last Name.");
-				valid = false;
-			}
+			valid = validateName(lastName);
 		} while (!valid);
 		do {
 			System.out.print("Enter Address1: ");
@@ -227,76 +178,37 @@ public class Bank {
 			if (!valid)
 				System.out.println("Invalid Address. Include Apt/Suite numbers in Address2.");
 		} while (!valid);
+		do {
 		System.out.print("Enter Address2: ");
 		address2 = keyboard.nextLine();
 		address2 = address2.trim();
+		valid = validateLettersAndNumbersOnly(address2);
+		if (!valid)
+			System.out.println("Only Letters and Numbers are allowed");
+		} while (!valid);
 		do {
-			valid = true;
 			System.out.print("Enter City: ");
 			city = keyboard.nextLine();
 			city = city.trim();
-			if (city.length() < 2 || !validateLettersOnly(city)) {
-				System.out.println("Invalid City.");
-				valid = false;
-			}
+			valid = validateCity(city);
 		} while (!valid);
 		do {
-			valid = false;
 			System.out.print("Enter State: ");
 			state = keyboard.nextLine();
 			state = state.toUpperCase().trim();
-			States states = new States();
-			for (String s : states.getStateAbr()) {
-				if (s.equals(state))
-					valid = true;
-			}
-			if (!valid)
-				System.out.println("Invalid State. Please Use State Abbreviation.");
+			valid = validateState(state);
 		} while (!valid);
 		do {
-			valid = true;
 			System.out.print("Enter ZipCode: ");
 			zip = keyboard.nextLine();
 			zip = zip.trim();
-			String[] zipCode = zip.split("-");
-			if (zipCode.length >= 1) {
-				if (!validateNumbersOnly(zipCode[0]) || zipCode[0].length() != 5)
-					valid = false;
-				if (zipCode.length == 2) {
-					if (!validateNumbersOnly(zipCode[1]) || zipCode[1].length() != 4)
-						valid = false;
-				}
-			} else
-				valid = false;
-			if (!valid)
-				System.out.println("Invalid ZipCode.");
+			valid = validateZip(zip);
 		} while (!valid);
 		do {
-			valid = true;
 			System.out.print("Enter Phone Number: ");
 			phone = keyboard.nextLine();
-			if (phone.length() == 10) {
-				phone = phone.substring(0, 3) + "-" + phone.substring(3, 6) + "-" + phone.substring(6);
-			}
-			if (phone.length() == 13) {
-				if (phone.charAt(0) == 40 && phone.charAt(4) == 41) {
-					phone = phone.substring(1, 4) + "-" + phone.substring(5);
-				}
-			}
-			if (phone.length() == 12) {
-				String[] digits = phone.split("-");
-				if (!validateNumbersOnly(digits[0]))
-					valid = false;
-				if (!validateNumbersOnly(digits[1]))
-					valid = false;
-				if (!validateNumbersOnly(digits[2]))
-					valid = false;
-			} else {
-				valid = false;
-			}
-			if (!valid) {
-				System.out.println("Invalid Phone Number.");
-			}
+			phone = modifyPhone(phone);
+			valid = validatePhone(phone);
 		} while (!valid);
 		do {
 			System.out.print("Enter Email Address: ");
@@ -307,65 +219,34 @@ public class Bank {
 				valid = false;
 			}
 		} while (!valid);
-		boolean ssExists = false;
 		do {
-			valid = true;
 			System.out.print("Enter Social Security Number: ");
 			ssNumber = keyboard.nextLine();
 			ssNumber = ssNumber.trim();
-			if (!ssNumber.contains("-"))
-				ssNumber = ssNumber.substring(0, 3) + "-" + ssNumber.substring(3, 5) + "-" + ssNumber.substring(5);
-			String[] ss = ssNumber.split("-");
-			if (ss.length != 3)
-				valid = false;
-			if (valid && (!validateNumbersOnly(ss[0]) || !validateNumbersOnly(ss[1]) || !validateNumbersOnly(ss[2])))
-				valid = false;
-			if (!valid)
-				System.out.println("Invalid Social Security Number.");
-			if (valid) {
-				temp = impl.getBySs(ssNumber);
-				if (temp.getId() != null) {
-					ssExists = true;
-					System.out.println("Social Security Number is in Use.");
-				}
-			}
-		} while (!valid || ssExists);
+			valid = validateSocialSecurity(ssNumber);			
+		} while (!valid);
 		do {
-			valid = false;
 			System.out.print("Enter Driver License State: ");
 			dlState = keyboard.nextLine();
 			dlState = dlState.toUpperCase().trim();
-			States states = new States();
-			for (String s : states.getStateAbr()) {
-				if (s.equals(dlState))
-					valid = true;
-			}
-			if (!valid)
-				System.out.println("Invalid State. Please Use State Abbreviation.");
+			valid = validateState(dlState);
 		} while (!valid);
 		do {
-			valid = true;
 			System.out.print("Enter Driver License Number: ");
 			dlNumber = keyboard.nextLine();
 			dlNumber = dlNumber.toUpperCase().trim();
-			if (dlNumber.length() < 4 || !validateLettersandNumbersOnly(dlNumber)) {
-				System.out.println("Invalid Driver License Number.");
-				valid = false;
-			}
+			valid = validateLicenseNumber(dlNumber);
 		} while (!valid);
 		Date date = new Date(System.currentTimeMillis());
 		do {
-			valid = true;
 			System.out.print("Enter Driver License Expiration (##/##/####): ");
 			dlExp = keyboard.nextLine();
 			dlExp = dlExp.trim();
-			if (!validateExpiration(dlExp, date)) {
-				System.out.println("Invalid Driver License Expiration.");
-				valid = false;
-			}
+			valid = validateExpiration(dlExp, date);
 		} while (!valid);
+		account.setAccessLvl(accessLvl);
 		login.setUsername(username);
-		login.setPassword(password);
+		login.setPassword(password, accessLvl);
 		account.setLogin(login);
 		account.setFirstName(firstName.toUpperCase());
 		account.setLastName(lastName.toUpperCase());
@@ -373,14 +254,13 @@ public class Bank {
 		account.setAddress2(address2);
 		account.setCity(city);
 		account.setState(state);
-		account.setZipcode(zip);
+		account.setZipCode(zip);
 		account.setPhone(phone);
 		account.setEmail(email);
 		account.setDlState(dlState);
 		account.setDlNumber(dlNumber);
 		account.setDlExp(dlExp);
 		account.setSocialSecurity(ssNumber);
-		account.setAccessLvl(accessLvl);
 		if (impl.add(account))
 			logger.info("User Account Successfully Created");
 		else {
@@ -391,31 +271,179 @@ public class Bank {
 		return account;
 	}
 
-	private static boolean validateExpiration(String dlExp, Date date) {
+	public static boolean validateLicenseNumber(String dlNumber) {
 		// TODO Auto-generated method stub
+		boolean valid = true;
+		if (dlNumber.length() < 4 || !validateLettersAndNumbersOnly(dlNumber)) {
+			System.out.println("Invalid Driver License Number.");
+			valid = false;
+		}
+		return valid;
+	}
+
+	public static boolean validatePhone(String phone) {
+		// TODO Auto-generated method stub
+		boolean valid = true;
+		if (phone.length() == 12) {
+			String[] digits = phone.split("-");
+			if (!validateNumbersOnly(digits[0]))
+				valid = false;
+			if (!validateNumbersOnly(digits[1]))
+				valid = false;
+			if (!validateNumbersOnly(digits[2]))
+				valid = false;
+		} else {
+			valid = false;
+		}
+		if (!valid) {
+			System.out.println("Invalid Phone Number.");
+		}
+		return valid;
+	}
+
+	public static String modifyPhone(String phone) {
+		// TODO Auto-generated method stub
+		if (phone.length() == 10) {
+			phone = phone.substring(0, 3) + "-" + phone.substring(3, 6) + "-" + phone.substring(6);
+		}
+		if (phone.length() == 13) {
+			if (phone.charAt(0) == 40 && phone.charAt(4) == 41) {
+				phone = phone.substring(1, 4) + "-" + phone.substring(5);
+			}
+		}
+		return phone;
+	}
+
+	public static boolean validateZip(String zip) {
+		// TODO Auto-generated method stub
+		boolean valid = true;
+		String[] zipCode = zip.split("-");
+		if (zipCode.length >= 1) {
+			if (!validateNumbersOnly(zipCode[0]) || zipCode[0].length() != 5)
+				valid = false;
+			if (zipCode.length == 2) {
+				if (!validateNumbersOnly(zipCode[1]) || zipCode[1].length() != 4)
+					valid = false;
+			}
+		} else
+			valid = false;
+		if (!valid)
+			System.out.println("Invalid ZipCode.");
+		return valid;
+	}
+
+	public static boolean validateState(String state) {
+		// TODO Auto-generated method stub
+		boolean valid = true;
+		States states = new States();
+		for (String s : states.getStateAbr()) {
+			if (s.equals(state))
+				valid = true;
+		}
+		if (!valid)
+			System.out.println("Invalid State. Please Use State Abbreviation.");
+		return valid;
+	}
+
+	public static boolean validateCity(String city) {
+		// TODO Auto-generated method stub
+		boolean valid = true;
+		if (city.length() < 2 || !validateLettersOnly(city)) {
+			System.out.println("Invalid City.");
+			valid = false;
+		}
+		return valid;
+	}
+
+	public static boolean validateName(String firstName) {
+		// TODO Auto-generated method stub
+		boolean valid = true;
+		if (firstName.length() < 2 || !validateLettersOnly(firstName)) {
+			System.out.println("Invalid First Name.");
+			valid = false;
+		}
+		return valid;
+	}
+
+	public static boolean validateUsername(String username) {
+		// TODO Auto-generated method stub
+		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccount temp = new UserAccount();
+		boolean valid = true;
+		if (username.length() < 6) {
+			System.out.println("Username must be at least 6 characters.");
+			valid = false;
+		}
+		if (!validateLettersAndNumbersOnly(username)) {
+			System.out.println("Username may not contain special characters.");
+			valid = false;
+		}
+		temp = impl.getByUsername(username);
+		if (temp.getId() != null) {
+			System.out.println("Username is already taken.");
+			valid = false;
+		}
+		return valid;
+	}
+
+	public static boolean validateSocialSecurity(String ssNumber) {
+		// TODO Auto-generated method stub
+		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccount temp = new UserAccount();
+		boolean ssExists = false;
+		boolean valid = true;
+		if (!ssNumber.contains("-"))
+			ssNumber = ssNumber.substring(0, 3) + "-" + ssNumber.substring(3, 5) + "-" + ssNumber.substring(5);
+		String[] ss = ssNumber.split("-");
+		if (ss.length != 3)
+			valid = false;
+		if (valid && (!validateNumbersOnly(ss[0]) || !validateNumbersOnly(ss[1]) || !validateNumbersOnly(ss[2])))
+			valid = false;
+		if (!valid)
+			System.out.println("Invalid Social Security Number.");
+		if (valid) {
+			temp = impl.getBySs(ssNumber);
+			if (temp.getId() != null) {
+				ssExists = true;
+				System.out.println("Social Security Number is in Use.");
+			}
+		}
+		if (valid == false || ssExists == true)
+			return false;
+		else
+			return true;
+	}
+
+	public static boolean validateExpiration(String dlExp, Date date) {
+		// TODO Auto-generated method stub
+		boolean valid = true;
 		String[] dateString = date.toString().split(" ");
 		int month = Integer.valueOf(Months.getMonths().get(dateString[1]));
 		int day = Integer.valueOf(dateString[2]);
 		int year = Integer.valueOf(dateString[5]);
 		String[] expString = dlExp.split("/");
 		if (expString.length != 3)
-			return false;
+			valid = false;
 		if (expString[0].length() != 2 || expString[1].length() != 2 || expString[2].length() != 4)
-			return false;
+			valid = false;
 		if (!validateNumbersOnly(expString[0]) || !validateNumbersOnly(expString[1])
 				|| !validateNumbersOnly(expString[2]))
-			return false;
-		if (Integer.valueOf(expString[2]) < year)
-			return false;
+			valid = false;
+		if (Integer.valueOf(expString[2]) < year) 
+			valid = false;
 		if (Integer.valueOf(expString[2]) == year && Integer.valueOf(expString[0]) < month)
-			return false;
+			valid = false;
 		if (Integer.valueOf(expString[2]) == year && Integer.valueOf(expString[0]) == month
 				&& Integer.valueOf(expString[1]) < day)
-			return false;
-		return true;
+			valid = false;
+		if (!valid){
+			System.out.println("Invalid Driver License Expiration.");
+			valid = false;
+		}
+		return valid;
 	}
 
-	private static boolean validateAddress(String address1) {
+	public static boolean validateAddress(String address1) {
 		// TODO Auto-generated method stub
 		String[] temp = address1.split(" ");
 		if (temp.length < 2)
@@ -447,7 +475,7 @@ public class Bank {
 		return valid;
 	}
 
-	private static boolean validateLettersandNumbersOnly(String text) {
+	public static boolean validateLettersAndNumbersOnly(String text) {
 		boolean valid = true;
 		for (char c : text.toCharArray())
 			if (c < 48 || c > 57 && c < 65 || c > 90 && c < 97 || c > 122)
@@ -455,7 +483,7 @@ public class Bank {
 		return valid;
 	}
 
-	private static boolean validatePassword(String password) {
+	public static boolean validatePassword(String password) {
 		if (password.length() < 8)
 			return false;
 		String temp = password.toLowerCase();
@@ -476,6 +504,13 @@ public class Bank {
 		for (char c : password.toCharArray()) {
 			if (c >= 33 && c <= 47 || c >= 58 && c <= 64 || c >= 91 && c <= 96 || c >= 123 && c <= 126)
 				valid = true;
+		}
+		if (!valid) {
+			System.out.println("Password must be at least 8 characters in length,");
+			System.out.println("Contain at least 1 uppercase letter,");
+			System.out.println("Contain at least 1 lowercase letter,");
+			System.out.println("Contain at least 1 number, and");
+			System.out.println("Contain at least 1 special character\n");
 		}
 		return valid;
 	}

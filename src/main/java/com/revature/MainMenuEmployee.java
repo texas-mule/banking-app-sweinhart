@@ -14,6 +14,7 @@ import java.util.Scanner;
 import org.apache.log4j.Logger;
 import com.revature.domain.AccountRequest;
 import com.revature.domain.Bank;
+import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
 import com.revature.domain.UserAccount;
 import com.revature.service.UserAccountDbSvcImpl;
@@ -23,7 +24,7 @@ public class MainMenuEmployee extends MainMenuClient {
 	private static Scanner keyboard;
 	private static Logger logger = Logger.getLogger(MainMenuEmployee.class);
 	private UserAccount user;
-	private static DecimalFormat df = new DecimalFormat("0.00");
+	protected static DecimalFormat df = new DecimalFormat("0.00");
 
 	public MainMenuEmployee(UserAccount user) {
 		super(user);
@@ -68,9 +69,10 @@ public class MainMenuEmployee extends MainMenuClient {
 		// TODO Auto-generated method stub
 		logger.info("Employee Menu");
 		int choice = 0;
-		System.out.println("\nSelect Accounts");
+		System.out.println("\nEmployee Menu");
 		System.out.println("1 - View Open Account Requests");
 		System.out.println("2 - View Customer Information");
+		System.out.println("3 - View Customer Accounts");
 		System.out.println("9 - Return to Starting Menu");
 		System.out.print("Choice? ");
 		try {
@@ -79,37 +81,81 @@ public class MainMenuEmployee extends MainMenuClient {
 			logger.info("Handling Input Mismatch Exception");
 			choice = 0;
 		}
+		UserAccount user;
+		BankAccount account;
 		switch (choice) {
 		case 1:
 			displayOpenRequests();
 			break;
 		case 2:
-			UserAccount account = displayClientSelectionMenu();
-			displayUserAccountDetails(account);
+			user = displayClientSelectionMenu();
+			displayUserAccountDetails(user);
+			break;
+		case 3:
+			user = displayClientSelectionMenu();
+			account = selectBankAccount(user);
+			if (account != null)
+				displayClientBankAccountDetails(account);
 			break;
 		case 9:
-			LoginMenu login = new LoginMenu();
-			login.displayMenu();
+			displayMainMenu();
 			break;
 		default:
 			System.out.println("Invalid Choice.");
 			displayEmployeeMenu();
 		}
+		displayEmployeeMenu();
 	}
 
-	private UserAccount displayClientSelectionMenu() {
+	protected void displayClientBankAccountDetails(BankAccount account) {
+		// TODO Auto-generated method stub
+		logger.info("Bank Account Details");
+		System.out.println("\nBank Account Details");
+		System.out.println(account.getAccountType() + ": " + account.getAccountNumber() + "\tBalance $"
+				+ df.format(account.getBalance()));
+		System.out.println("Transaction History:");
+		BankTransactions.viewAccountHistory(account);
+	}
+
+	protected BankAccount selectBankAccount(UserAccount user) {
+		// TODO Auto-generated method stub
+		logger.info("Bank Account Selection Menu");
+		int choice = 0;
+		int index = 0;
+		System.out.println("\nBank Account Selection Menu");
+		if (user.getAccounts().size() == 0) {
+			System.out.println("Client Has No Open Accounts");
+			return null;
+		}
+		for (BankAccount acc : user.getAccounts()) {
+			index++;
+			System.out.println(index + " - " + acc.getAccountType() + ": " + acc.getAccountNumber() + "\tBalance $"
+					+ df.format(acc.getBalance()));
+		}
+		System.out.print("Choice? ");
+		try {
+			choice = keyboard.nextInt();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			choice = 0;
+		}
+		if (choice < 1 || choice > index) {
+			System.out.println("Invalid Selection");
+			selectBankAccount(user);
+		}
+		return user.getAccounts().get(choice);
+	}
+
+	protected UserAccount displayClientSelectionMenu() {
 		// TODO Auto-generated method stub
 		System.out.println("\nBank Client List");
 		List<UserAccount> clients = new ArrayList<UserAccount>();
-		clients.add(Bank.getAdmin());
-		for (UserAccount account : Bank.getEmployees())
-			clients.add(account);
-		for (UserAccount account : Bank.getClients())
-			clients.add(account);
+		clients = Bank.getUserAccounts();
 		Collections.sort(clients);
-		int index = 1;
+		int index = 0;
 		HashMap<Integer, UserAccount> map = new HashMap<Integer, UserAccount>();
 		for (UserAccount account : clients) {
+			index++;
 			System.out.print(index + " - " + account.getLastName() + ", " + account.getFirstName());
 			System.out.print("\t");
 			switch (account.getAccessLvl()) {
@@ -123,8 +169,7 @@ public class MainMenuEmployee extends MainMenuClient {
 				System.out.println("Bank Administrator");
 				break;
 			}
-			map.put(index, account);
-			index++;
+			map.put(index, account);			
 		}
 		int choice = 0;
 		System.out.println("Select Client Account OR 0 to go Back: ");
@@ -145,7 +190,7 @@ public class MainMenuEmployee extends MainMenuClient {
 		return account;
 	}
 
-	private void displayUserAccountDetails(UserAccount account) {
+	protected void displayUserAccountDetails(UserAccount account) {
 		// TODO Auto-generated method stub
 		System.out.println("\nClient Details");
 		System.out.print(account.getLastName() + account.getFirstName());
@@ -204,7 +249,7 @@ public class MainMenuEmployee extends MainMenuClient {
 		}
 	}
 
-	private void displayOpenRequests() {
+	protected void displayOpenRequests() {
 		// TODO Auto-generated method stub
 		List<AccountRequest.Request> openRequests = Bank.getAccountRequests();
 		// Cannot approve your own requests
@@ -224,15 +269,15 @@ public class MainMenuEmployee extends MainMenuClient {
 			displayEmployeeMenu();
 		}
 		System.out.println("\nCurrent Open Requests");
-		int index = 1;
+		int index = 0;
 		int choice = 0;
 		for (AccountRequest.Request request : requests) {
+			index++;
 			System.out.print(index + " - " + request.getDate() + " ");
 			if (request.getUserIds().size() > 1)
 				System.out.println("Joint");
 			System.out.print(" " + request.getAccountType() + " Account Request with Opening ");
 			System.out.println("Deposit $" + df.format(request.getDeposit()));
-			index++;
 		}
 		System.out.print("Select Request: ");
 		try {

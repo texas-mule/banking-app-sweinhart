@@ -1,6 +1,8 @@
 package com.revature;
 
 import com.revature.domain.Bank;
+import com.revature.domain.UserAccount;
+
 import java.util.Scanner;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -28,9 +30,14 @@ public class BankingApp {
 					keyboard.close();
 					System.exit(0);
 				}
-				if (Bank.getAdmin().getId() == null) {
+				boolean adminExists = false;
+				for (UserAccount account : Bank.getUserAccounts()) {
+					if (account.getAccessLvl() == 3)
+						adminExists = true;
+				}
+				if (!adminExists) {
 					System.out.println("Admin Setup");
-					Bank.setAdmin(Bank.createAccount(3));
+					Bank.getUserAccounts().add(Bank.createUserAccount(3));
 					System.out.println("Admin Setup Completed. Please Log In.\n");
 				} else {
 					System.out.print("Admin Account Already Assigned - Please Log In");

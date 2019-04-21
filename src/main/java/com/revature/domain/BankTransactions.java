@@ -44,7 +44,7 @@ public class BankTransactions {
 			} catch (InputMismatchException e) {
 				logger.info("Handling Input Mismatch Exception");
 				System.out.println("Invalid Input. Returning to Main Menu.");
-				returnToMainMenu(user, account);
+				returnToMainMenu(user);
 			}
 			System.out.print("Select Account to Transfer To: ");
 			try {
@@ -52,7 +52,7 @@ public class BankTransactions {
 			} catch (InputMismatchException e) {
 				logger.info("Handling Input Mismatch Exception");
 				System.out.println("Invalid Input. Returning to Main Menu.");
-				returnToMainMenu(user, account);
+				returnToMainMenu(user);
 			}
 			if (choice1 < 1 || choice2 < 1 || choice1 > index || choice2 > index) {
 				valid = false;
@@ -87,7 +87,7 @@ public class BankTransactions {
 			} catch (InputMismatchException e) {
 				logger.info("Handling Input Mismatch Exception");
 				System.out.println("Invalid Input. Returning to Main Menu.");
-				returnToMainMenu(user, account);
+				returnToMainMenu(user);
 			}
 			if (transferAmt > fromAccount.getBalance()) {
 				valid = false;
@@ -133,7 +133,7 @@ public class BankTransactions {
 			} catch (InputMismatchException e) {
 				logger.info("Handling Input Mismatch Exception");
 				System.out.println("Invalid Input. Returning to Main Menu.");
-				returnToMainMenu(user, account);
+				returnToMainMenu(user);
 			}
 			transaction.setTransactionType(Transaction.deposit);
 			transaction.setAccountNumber(account.getAccountNumber());
@@ -146,7 +146,7 @@ public class BankTransactions {
 		keyboard.close();
 	}
 
-	private static void returnToMainMenu(UserAccount user, BankAccount account) {
+	private static void returnToMainMenu(UserAccount user) {
 		// TODO Auto-generated method stub
 		switch (user.getAccessLvl()) {
 		case 1:
@@ -184,15 +184,15 @@ public class BankTransactions {
 			} catch (InputMismatchException e) {
 				logger.info("Handling Input Mismatch Exception");
 				System.out.println("Invalid Input. Returning to Main Menu.");
-				returnToMainMenu(user, account);
+				makeWithdrawl(user, account);
 			}
 			if (withdrawl > account.getBalance()) {
 				System.out.println("Cannot Withdraw more than Account Balance");
-				returnToMainMenu(user, account);
+				makeWithdrawl(user, account);
 			}
 			if (withdrawl <= 0) {
 				System.out.println("Invalid Withdrawl Amount");
-				returnToMainMenu(user, account);
+				makeWithdrawl(user, account);
 			}
 			transaction.setAccountNumber(account.getAccountNumber());
 			transaction.setTransactionType(Transaction.withdrawl);
@@ -236,27 +236,9 @@ public class BankTransactions {
 			for (Integer i : request.getUserIds()) {
 				newAccount.getAccountOwners().add(request.getUserIds().get(i));
 				account = userImpl.getById(i);
-				switch (account.getAccessLvl()) {
-				case 1:
-					for (UserAccount u : Bank.getClients()) {
-						if (u.getId() == account.getId()) {
-							u.getAccounts().add(newAccount);
-						}
-					}
-					break;
-				case 2:
-					for (UserAccount u : Bank.getEmployees()) {
-						if (u.getId() == account.getId()) {
-							u.getAccounts().add(newAccount);
-						}
-					}
-					break;
-				case 3:
-					Bank.getAdmin().getAccounts().add(newAccount);
-					break;
-				default:
-					logger.info("Error Adding Bank Account to Client");
-					System.exit(1);
+				for (UserAccount u : Bank.getUserAccounts()) {
+					if (u.getId() == account.getId())
+						u.getAccounts().add(newAccount);
 				}
 			}			
 		}
@@ -264,28 +246,17 @@ public class BankTransactions {
 		requestImpl.delete(request);
 		for (Integer i : request.getUserIds()) {
 			account = userImpl.getById(i);
-			switch (account.getAccessLvl()) {
-			case 1:
-				for (UserAccount u : Bank.getClients()) {
-					if (u.getId() == account.getId()) {
-						u.getPendingRequests().getAccountRequests().remove(request);
-					}
+			for (UserAccount u : Bank.getUserAccounts()) {
+				if (u.getId() == account.getId()) {
+					u.getPendingRequests().getAccountRequests().remove(request);
 				}
-				break;
-			case 2:
-				for (UserAccount u : Bank.getEmployees()) {
-					if (u.getId() == account.getId()) {
-						u.getPendingRequests().getAccountRequests().remove(request);
-					}
-				}
-				break;
-			case 3:
-				Bank.getAdmin().getPendingRequests().getAccountRequests().remove(request);
-				break;
-			default:
-				logger.info("Error while deleting Pending Account Request");
-				System.exit(1);
 			}
 		}
+	}
+
+	public static void closeAccount(UserAccount user, BankAccount account) {
+		// TODO Auto-generated method stub
+		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
+		impl.delete(account);
 	}
 }

@@ -4,6 +4,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
 import com.revature.domain.Bank;
+import com.revature.domain.Login;
 import com.revature.domain.UserAccount;
 import com.revature.service.UserAccountDbSvcImpl;
 
@@ -19,7 +20,7 @@ public class LoginMenu {
 		// TODO Auto-generated method stub
 		UserAccount user = new UserAccount();
 		keyboard  = new Scanner(System.in);
-		System.out.println("\n\t\t\t" + Bank.getBankName() + "\t Routing Number: " + Bank.getRoutingNumber());
+		System.out.println("\n\t\t\t" + Bank.getBankName());
 		int choice = 0;
 		System.out.println("Login Menu");
 		System.out.println("1 - Login");
@@ -78,7 +79,7 @@ public class LoginMenu {
 	private UserAccount newAccount(Integer accessLvl) {
 		// TODO Auto-generated method stub
 		UserAccount account = new UserAccount();
-		account = Bank.createAccount(accessLvl);
+		account = Bank.createUserAccount(accessLvl);
 		return account;
 	}
 
@@ -93,11 +94,18 @@ public class LoginMenu {
 		System.out.print("Password: ");
 		password = keyboard.nextLine();
 		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
-		account = impl.get(username);
-		if (account.getId() == null || !password.equals(account.getLogin().getPassword())) {
+		account = impl.getByUsername(username);
+		int accessLvl = 0;
+		if (account.getId() == null) {
 			System.out.println("Invalid username or password");
 			displayMenu();
 		}
+		accessLvl = Login.getPasswordAccessLvlMatch(password, account.getLogin().getPassword());
+		if (accessLvl == 0) {
+			System.out.println("Invalid username or password");
+			displayMenu();
+		}
+		account.setAccessLvl(accessLvl);
 		return account;
 	}
 

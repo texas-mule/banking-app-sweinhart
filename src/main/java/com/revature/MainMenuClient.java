@@ -83,11 +83,11 @@ public class MainMenuClient {
 	protected void viewAccounts() {
 		// TODO Auto-generated method stub
 		int choice;
-		int index;
+		int index = 0;
 		do {
 			System.out.println("\nSelect Account");
-			index = 1;
 			for (BankAccount account : user.getAccounts()) {
+				index++;
 				System.out
 						.println(index + " - " + account.getAccountType() + " Account: " + account.getAccountNumber());
 			}
@@ -160,9 +160,10 @@ public class MainMenuClient {
 		if (!user.getPendingRequests().getAccountRequests().isEmpty()) {
 			int numRequests = user.getPendingRequests().getAccountRequests().size();
 			System.out.println("\nYou Have " + numRequests + " Account Requests Pending");
-			int index = 1;
+			int index = 0;
 			DecimalFormat df = new DecimalFormat("0.00");
 			for (Request request : user.getPendingRequests().getAccountRequests()) {
+				index++;
 				System.out.println(index + " - Pending " + request.getAccountType() + " Account\t\t Deposit - $"
 						+ df.format(request.getDeposit()));
 			}
@@ -274,7 +275,7 @@ public class MainMenuClient {
 			jointUser = impl.getBySs(ssNumber);
 			if (jointUser.getId() == null) {
 				System.out.println("User Does Not Exist in the System");
-				jointUser = Bank.createAccount(1);
+				jointUser = Bank.createUserAccount(1);
 			}
 			request.setAccountType(accountType);
 			request.addUserId(user.getId());

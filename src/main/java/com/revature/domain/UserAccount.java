@@ -147,7 +147,7 @@ public class UserAccount implements Comparable<UserAccount>{
 		return zipcode;
 	}
 
-	public void setZipcode(String zipcode) {
+	public void setZipCode(String zipcode) {
 		this.zipcode = zipcode;
 	}
 
