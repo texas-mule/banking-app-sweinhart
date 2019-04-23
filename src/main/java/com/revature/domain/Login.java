@@ -33,14 +33,17 @@ public class Login {
 	}
 
 	private static String encodePassword(String password, Integer accessLvl) {
+		logger.info("Encoding password and access level");
 		String encPassword = null;
 		String plainPassword = password + accessLvl.toString();
 		try {
 			encPassword = md5(plainPassword);
-		} catch (NoSuchAlgorithmException ex) {
-			logger.fatal(ex.getStackTrace());
-		} catch (UnsupportedEncodingException ex) {
-			logger.fatal(ex.getStackTrace());
+		} catch (NoSuchAlgorithmException e) {
+			logger.error("Encoding error " + e.getMessage());
+			System.exit(1);	
+		} catch (UnsupportedEncodingException e) {
+			logger.error("Encoding error " + e.getMessage());
+			System.exit(1);	
 		}
 		if (encPassword.isEmpty()) {
 			System.exit(1);			
@@ -49,6 +52,7 @@ public class Login {
 	}
 	
 	public static Integer getPasswordAccessLvlMatch(String password, String storedPasswordMd5) {
+		logger.info("Decoding password and access level");
 		int accessLvl = 0;
 		if (storedPasswordMd5.isEmpty())
 			return 0;
@@ -62,18 +66,19 @@ public class Login {
 				}
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Encoding error " + e.getMessage());
+				System.exit(1);	
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Encoding error " + e.getMessage());
+				System.exit(1);	
 			}
 		}
 		return accessLvl;
 	}
 	
 	public static String md5(final String input) 
-            throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        
+            throws NoSuchAlgorithmException, UnsupportedEncodingException {        
         final MessageDigest md = MessageDigest.getInstance("MD5");
         //"UTF-8"
         final byte[] messageDigest = md.digest(input.getBytes("UTF-8"));

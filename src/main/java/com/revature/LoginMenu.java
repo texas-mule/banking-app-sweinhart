@@ -18,6 +18,7 @@ public class LoginMenu {
 
 	public void displayMenu() {
 		// TODO Auto-generated method stub
+		logger.info("Starting Login Menu");
 		UserAccount user = new UserAccount();
 		keyboard  = new Scanner(System.in);
 		System.out.println("\n\t\t\t" + Bank.getBankName());
@@ -40,6 +41,8 @@ public class LoginMenu {
 			break;
 		case 2:
 			user = newAccount(1);
+			System.out.println("User Account Created. Please Login.");
+			displayMenu();
 			break;
 		case 9:
 			logger.info("User Selected Exit Application!");
@@ -51,10 +54,10 @@ public class LoginMenu {
 		}
 
 		if (user.getId() == null) {
-			logger.info("Logged in User returned null account");
+			logger.fatal("Logged in User returned null account");
+			System.exit(1);
 		}
-		logger.info("Logged in User with access level " + user.getId());
-		keyboard.close();
+		logger.info("Logged in User with access level " + user.getAccessLvl());
 		// Go to main screen
 		switch (user.getAccessLvl()) {
 		case 1:
@@ -85,6 +88,7 @@ public class LoginMenu {
 
 	private UserAccount login() {
 		// TODO Auto-generated method stub
+		logger.info("Starting Login");
 		UserAccount account = new UserAccount();
 		keyboard = new Scanner(System.in);
 		String username;
@@ -106,6 +110,7 @@ public class LoginMenu {
 			displayMenu();
 		}
 		account.setAccessLvl(accessLvl);
+		logger.info("Login Completed");
 		return account;
 	}
 

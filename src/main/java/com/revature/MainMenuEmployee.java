@@ -7,7 +7,6 @@ import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -30,11 +29,11 @@ public class MainMenuEmployee extends MainMenuClient {
 		super(user);
 		// TODO Auto-generated constructor stub
 		this.user = user;
-		keyboard = new Scanner(System.in);
 	}
 
 	public void displayMainMenu() {
-		logger.info("Starting Employee Main Menu");
+		logger.info("Starting Employee Inital Menu");
+		keyboard  = new Scanner(System.in);
 		System.out.println("\n\t\t\t" + Bank.getBankName() + "\t Routing Number: " + Bank.getRoutingNumber());
 		int choice = 0;
 		System.out.println("\nSelect Personal/Client Accounts");
@@ -67,7 +66,8 @@ public class MainMenuEmployee extends MainMenuClient {
 
 	private void displayEmployeeMenu() {
 		// TODO Auto-generated method stub
-		logger.info("Employee Menu");
+		logger.info("Starting Employee Menu");
+		keyboard  = new Scanner(System.in);
 		int choice = 0;
 		System.out.println("\nEmployee Menu");
 		System.out.println("1 - View Open Account Requests");
@@ -109,7 +109,8 @@ public class MainMenuEmployee extends MainMenuClient {
 
 	protected void displayClientBankAccountDetails(BankAccount account) {
 		// TODO Auto-generated method stub
-		logger.info("Bank Account Details");
+		logger.info("Starting Bank Account Details");
+		keyboard  = new Scanner(System.in);
 		System.out.println("\nBank Account Details");
 		System.out.println(account.getAccountType() + ": " + account.getAccountNumber() + "\tBalance $"
 				+ df.format(account.getBalance()));
@@ -119,7 +120,8 @@ public class MainMenuEmployee extends MainMenuClient {
 
 	protected BankAccount selectBankAccount(UserAccount user) {
 		// TODO Auto-generated method stub
-		logger.info("Bank Account Selection Menu");
+		logger.info("Starting Bank Account Selection Menu");
+		keyboard  = new Scanner(System.in);
 		int choice = 0;
 		int index = 0;
 		System.out.println("\nBank Account Selection Menu");
@@ -148,12 +150,13 @@ public class MainMenuEmployee extends MainMenuClient {
 
 	protected UserAccount displayClientSelectionMenu() {
 		// TODO Auto-generated method stub
+		logger.info("Starting Client Account Selection Menu");
+		keyboard  = new Scanner(System.in);
 		System.out.println("\nBank Client List");
 		List<UserAccount> clients = new ArrayList<UserAccount>();
 		clients = Bank.getUserAccounts();
 		Collections.sort(clients);
 		int index = 0;
-		HashMap<Integer, UserAccount> map = new HashMap<Integer, UserAccount>();
 		for (UserAccount account : clients) {
 			index++;
 			System.out.print(index + " - " + account.getLastName() + ", " + account.getFirstName());
@@ -168,30 +171,41 @@ public class MainMenuEmployee extends MainMenuClient {
 			case 3:
 				System.out.println("Bank Administrator");
 				break;
-			}
-			map.put(index, account);			
+			}			
 		}
-		int choice = 0;
-		System.out.println("Select Client Account OR 0 to go Back: ");
-		try {
-			choice = keyboard.nextInt();
-		} catch (InputMismatchException e) {
-			logger.info("Handling Input Mismatch Exception");
-			choice = 0;
+		Integer choice = 0;
+		String choiceString = "";
+		System.out.println("Select Client Account OR ESC to go Back: ");
+		try (BufferedReader input = new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
+			char c;
+			do {
+				c = (char) input.read();
+			} while (c != 13 && c != 27);
+			if (c == 27)
+				displayEmployeeMenu();
+			else
+				choiceString += c;
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			logger.error(e.getMessage());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			logger.error(e.getMessage());
 		}
-		if (choice == 0)
-			displayEmployeeMenu();
-		if (choice > index) {
+		choice = Integer.valueOf(choiceString);
+		if (choice == null || choice > index) {
 			System.out.println("Invalid Selection");
 			displayClientSelectionMenu();
 		}
 		UserAccount account = new UserAccount();
-		account = map.get(choice);
+		account = clients.get(choice - 1);
 		return account;
 	}
 
 	protected void displayUserAccountDetails(UserAccount account) {
 		// TODO Auto-generated method stub
+		logger.info("Starting Client Account Details");
+		keyboard  = new Scanner(System.in);
 		System.out.println("\nClient Details");
 		System.out.print(account.getLastName() + account.getFirstName());
 		System.out.print("\t");
@@ -235,22 +249,23 @@ public class MainMenuEmployee extends MainMenuClient {
 
 		System.out.println("\nPress Any Key to Return to Menu");
 		try (BufferedReader input = new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
-			@SuppressWarnings("unused")
 			char c;
-			while ((c = (char) input.read()) != 0) {
-				displayEmployeeMenu();
-			}
+			do {
+				c = (char) input.read();
+			} while (c != 0);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
 	protected void displayOpenRequests() {
 		// TODO Auto-generated method stub
+		logger.info("Starting Client Account Requests View");
+		keyboard  = new Scanner(System.in);
 		List<AccountRequest.Request> openRequests = Bank.getAccountRequests();
 		// Cannot approve your own requests
 		List<AccountRequest.Request> requests = new ArrayList<AccountRequest.Request>();

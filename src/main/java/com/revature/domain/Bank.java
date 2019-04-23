@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-
 import com.revature.service.AccountRequestDbSvcImpl;
 import com.revature.service.BankAccountDbSvcImpl;
 import com.revature.service.TransactionDbSvcImpl;
@@ -24,6 +23,7 @@ public class Bank {
 
 	public static void initializeBank() {
 		// TODO Auto-generated constructor stub
+		logger.info("Initializing Bank");
 		AccountRequestDbSvcImpl requestImpl = AccountRequestDbSvcImpl.getInstance();
 		BankAccountDbSvcImpl accountImpl = BankAccountDbSvcImpl.getInstance();
 		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
@@ -116,6 +116,7 @@ public class Bank {
 	public static UserAccount createUserAccount(int accessLvl) {
 		// TODO Auto-generated method stub
 		logger.info("Creating New User Account");
+		keyboard  = new Scanner(System.in);
 		UserAccount account = new UserAccount();
 		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
 		Login login = new Login();
@@ -161,6 +162,8 @@ public class Bank {
 			System.out.print("Enter First Name: ");
 			firstName = keyboard.nextLine();
 			firstName = firstName.trim();
+			String [] name = {firstName.substring(0, 1), firstName.substring(1)};
+			firstName = name[0].toUpperCase() + name[1].toLowerCase();
 			valid = validateName(firstName);
 		} while (!valid);
 		do {
@@ -168,11 +171,20 @@ public class Bank {
 			System.out.print("Enter Last Name: ");
 			lastName = keyboard.nextLine();
 			lastName = lastName.trim();
+			String [] name = {lastName.substring(0, 1), lastName.substring(1)};
+			lastName = name[0].toUpperCase() + name[1].toLowerCase();
 			valid = validateName(lastName);
 		} while (!valid);
 		do {
 			System.out.print("Enter Address1: ");
 			address1 = keyboard.nextLine();
+			address1 = address1.trim();
+			String [] address = address1.split(" ");
+			address1 = address[0] + " ";
+			for (int i = 1; i < address.length; i++) {
+				address[i] = address[i].substring(0, 1).toUpperCase() + address[i].substring(1).toLowerCase();
+				address1 += address[i] + " ";
+			}
 			address1 = address1.trim();
 			valid = validateAddress(address1);
 			if (!valid)
@@ -190,6 +202,8 @@ public class Bank {
 			System.out.print("Enter City: ");
 			city = keyboard.nextLine();
 			city = city.trim();
+			String [] input = {city.substring(0, 1), city.substring(1)};
+			city = input[0].toUpperCase() + input[1].toLowerCase();
 			valid = validateCity(city);
 		} while (!valid);
 		do {
@@ -214,15 +228,17 @@ public class Bank {
 			System.out.print("Enter Email Address: ");
 			email = keyboard.nextLine();
 			email = email.trim();
-			if (!validateEmail(email)) {
+			valid = validateEmail(email);
+			if (!valid) {
 				System.out.println("Invalid Email Address.");
-				valid = false;
 			}
 		} while (!valid);
 		do {
 			System.out.print("Enter Social Security Number: ");
 			ssNumber = keyboard.nextLine();
 			ssNumber = ssNumber.trim();
+			if (!ssNumber.contains("-"))
+				ssNumber = ssNumber.substring(0, 3) + "-" + ssNumber.substring(3, 5) + "-" + ssNumber.substring(5);
 			valid = validateSocialSecurity(ssNumber);			
 		} while (!valid);
 		do {
@@ -236,20 +252,26 @@ public class Bank {
 			dlNumber = keyboard.nextLine();
 			dlNumber = dlNumber.toUpperCase().trim();
 			valid = validateLicenseNumber(dlNumber);
+			if (valid) {
+				UserAccount temp = impl.getByDl(dlState, dlNumber);
+				if (temp.getId() != null) {
+					System.out.println("Driver License is already in use");
+					valid = false;
+				}
+			}
 		} while (!valid);
-		Date date = new Date(System.currentTimeMillis());
 		do {
 			System.out.print("Enter Driver License Expiration (##/##/####): ");
 			dlExp = keyboard.nextLine();
 			dlExp = dlExp.trim();
-			valid = validateExpiration(dlExp, date);
+			valid = validateExpiration(dlExp);
 		} while (!valid);
 		account.setAccessLvl(accessLvl);
 		login.setUsername(username);
 		login.setPassword(password, accessLvl);
 		account.setLogin(login);
-		account.setFirstName(firstName.toUpperCase());
-		account.setLastName(lastName.toUpperCase());
+		account.setFirstName(firstName);
+		account.setLastName(lastName);
 		account.setAddress1(address1);
 		account.setAddress2(address2);
 		account.setCity(city);
@@ -267,7 +289,6 @@ public class Bank {
 			logger.info("User Account Did Not Save");
 			System.exit(1);
 		}
-		keyboard.close();
 		return account;
 	}
 
@@ -392,8 +413,6 @@ public class Bank {
 		UserAccount temp = new UserAccount();
 		boolean ssExists = false;
 		boolean valid = true;
-		if (!ssNumber.contains("-"))
-			ssNumber = ssNumber.substring(0, 3) + "-" + ssNumber.substring(3, 5) + "-" + ssNumber.substring(5);
 		String[] ss = ssNumber.split("-");
 		if (ss.length != 3)
 			valid = false;
@@ -414,16 +433,17 @@ public class Bank {
 			return true;
 	}
 
-	public static boolean validateExpiration(String dlExp, Date date) {
+	public static boolean validateExpiration(String dlExp) {
 		// TODO Auto-generated method stub
 		boolean valid = true;
+		Date date = new Date();
 		String[] dateString = date.toString().split(" ");
 		int month = Integer.valueOf(Months.getMonths().get(dateString[1]));
 		int day = Integer.valueOf(dateString[2]);
 		int year = Integer.valueOf(dateString[5]);
 		String[] expString = dlExp.split("/");
 		if (expString.length != 3)
-			valid = false;
+			return false;
 		if (expString[0].length() != 2 || expString[1].length() != 2 || expString[2].length() != 4)
 			valid = false;
 		if (!validateNumbersOnly(expString[0]) || !validateNumbersOnly(expString[1])
@@ -484,35 +504,34 @@ public class Bank {
 	}
 
 	public static boolean validatePassword(String password) {
+		boolean check1 = true;
+		boolean check2 = false;
+		boolean check3 = false;
 		if (password.length() < 8)
-			return false;
+			check1 = false;
 		String temp = password.toLowerCase();
 		if (temp.equals(password))
-			return false;
+			check1 = false;
 		temp = password.toUpperCase();
 		if (temp.equals(password))
-			return false;
-		boolean valid = false;
+			check1 = false;
 		for (char c : password.toCharArray()) {
 			if (c >= 48 && c <= 57)
-				valid = true;
+				check2 = true;
 		}
-		if (valid)
-			valid = false;
-		else
-			return false;
 		for (char c : password.toCharArray()) {
 			if (c >= 33 && c <= 47 || c >= 58 && c <= 64 || c >= 91 && c <= 96 || c >= 123 && c <= 126)
-				valid = true;
+				check3 = true;
 		}
-		if (!valid) {
+		if (!check1 || !check2 || !check3) {
 			System.out.println("Password must be at least 8 characters in length,");
 			System.out.println("Contain at least 1 uppercase letter,");
 			System.out.println("Contain at least 1 lowercase letter,");
 			System.out.println("Contain at least 1 number, and");
 			System.out.println("Contain at least 1 special character\n");
+			return false;
 		}
-		return valid;
+		return true;
 	}
 
 	public static boolean validateEmail(String email) {

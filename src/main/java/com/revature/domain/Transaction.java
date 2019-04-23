@@ -19,7 +19,7 @@ public class Transaction implements Comparable<Transaction>{
 	public Transaction() {
 		super();
 		// TODO Auto-generated constructor stub
-		setDateInstance();
+		setDateNow();
 	}
 	
 	public Integer getId() {
@@ -58,7 +58,12 @@ public class Transaction implements Comparable<Transaction>{
 		return time;
 	}
 
-	public void setDateInstance() {
+	public void setDate(String date, String time) {
+		this.date = date;
+		this.time = time;
+	}
+	
+	public void setDateNow() {
 		dateInstance = new Date();
 		String dateString = dateInstance.toString();
 		String[] dateStringArray = dateString.toString().split(" ");

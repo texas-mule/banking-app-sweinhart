@@ -11,12 +11,12 @@ import java.util.List;
 import java.sql.ResultSet;
 import com.revature.domain.AccountRequest;
 import com.revature.domain.AccountRequest.Request;
+import org.apache.log4j.Logger;
 
 public class AccountRequestDbSvcImpl implements AccountRequestInterface {
-
+	private static Logger logger = Logger.getLogger(AccountRequestDbSvcImpl.class);
 	private static AccountRequestDbSvcImpl instance = new AccountRequestDbSvcImpl();
 	private static Connection conn;
-	private Integer integer;
 
 	public AccountRequestDbSvcImpl() {
 		super();
@@ -27,32 +27,41 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 	}
 
 	private static void connect() {
-		try {
-			String url = "jdbc:sqlite:BankingApp.db";
-			conn = DriverManager.getConnection(url);
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-	}
-
+        try {
+            String url = "jdbc:sqlite:BankingApp.db";
+            conn = DriverManager.getConnection(url);
+        } catch (SQLException e) {
+        	logger.fatal("Unable to open database\n" + e.getMessage());
+			System.exit(1);
+        }
+    }
+	
 	private static void close() {
-		try {
-			conn.close();
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-	}
+        try {
+            conn.close();
+        } catch (SQLException e) {
+        	logger.fatal("Unable to close database\n" + e.getMessage());
+			System.exit(1);
+        }
+    }
 
 	private static void setup() {
-		String sql = "CREATE TABLE IF NOT EXISTS AccountRequests (\n" + "	id integer PRIMARY KEY,\n"
-				+ "	accountType text NOT NULL,\n" + "	deposit real NOT NULL,\n" + "	date text NOT NULL,\n"
-				+ "	time text NOT NULL,\n" + "	client1 integer NOT NULL,\n" + "	client2 integer\n" + ");";
+		String sql = "CREATE TABLE IF NOT EXISTS AccountRequests (\n" 
+				+ "	id integer PRIMARY KEY,\n"
+				+ "	accountType text NOT NULL,\n" 
+				+ "	deposit real NOT NULL,\n" 
+				+ "	date text NOT NULL,\n"
+				+ "	time text NOT NULL,\n" 
+				+ "	client1 integer NOT NULL,\n" 
+				+ "	client2 integer\n" 
+				+ ");";
 		connect();
 		try {
 			Statement stmt = conn.createStatement();
 			stmt.execute(sql);
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			logger.fatal("AccountRequests Table Creation Failed\n" + e.getMessage());
+			System.exit(1);
 		}
 		close();
 	}
@@ -72,18 +81,17 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 			pstmt.setString(3, request.getDate());
 			pstmt.setString(4, request.getTime());
 			pstmt.setInt(5, request.getUserIds().get(0));
-			if (request.getUserIds().size() > 5)
+			if (request.getUserIds().size() > 1)
 				pstmt.setInt(6, request.getUserIds().get(1));
-			else {
-				integer = (Integer) null;
-				pstmt.setInt(6, integer);
-			}
+			else
+				pstmt.setInt(6, 0);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-			return false;
+			logger.fatal("AccountRequest addition Failed\n" + e.getMessage());
+			System.exit(1);
 		}
 		close();
+		logger.info("AccountRequest added successfully");
 		return true;
 	}
 
@@ -95,10 +103,11 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 			pstmt.setInt(1, request.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-			return false;
+			logger.fatal("AccountRequest deletion Failed\n" + e.getMessage());
+			System.exit(1);
 		}
 		close();
+		logger.info("AccountRequest deleted successfully");
 		return true;
 	}
 
@@ -111,8 +120,8 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 				+ "FROM AccountRequests";
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			ResultSet rs = pstmt.executeQuery();
-			AccountRequest accountRequest = new AccountRequest();
 			while (rs.next()) {
+				AccountRequest accountRequest = new AccountRequest();
 				Request request = accountRequest.new Request();
 				request.setId(rs.getInt("id"));
 				request.setAccountType(rs.getString("accountType"));
@@ -121,15 +130,16 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 				request.setTime(rs.getString("time"));
 				request.getUserIds().add(rs.getInt("client1"));
 				Integer integer = (Integer) rs.getInt("client2");
-				if (integer != null)
+				if (integer != 0)
 					request.getUserIds().add(integer);
 				list.add(request);
 			}
 		} catch (SQLException e) {
-			System.out.println(e.getStackTrace());
-			return null;
+			logger.info("AccountRequests retrieval Failed\n" + e.getMessage());
 		}
 		Collections.sort(list);
+		close();
+		logger.info("AccountRequests retrieved successfully");
 		return list;
 	}
 

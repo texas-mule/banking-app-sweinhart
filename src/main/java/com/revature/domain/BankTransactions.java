@@ -16,18 +16,25 @@ import java.util.List;
 
 public class BankTransactions {
 
+	private static Scanner keyboard;
 	private static Logger logger = Logger.getLogger(BankTransactions.class);
 	private static DecimalFormat df = new DecimalFormat("0.00");
+	
+
+	public BankTransactions() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	public static void transferFunds(UserAccount user, BankAccount account) {
 		// TODO Auto-generated method stub
 		logger.info("Transfer Funds Started");
+		keyboard  = new Scanner(System.in);
 		Double transferAmt = 0.0;
 		List<BankAccount> accounts = user.getAccounts();
 		int index = 1;
 		int choice1 = 0;
 		int choice2 = 0;
-		Scanner keyboard = new Scanner(System.in);
 		boolean valid = true;
 		BankAccount fromAccount = new BankAccount();
 		BankAccount toAccount = new BankAccount();
@@ -68,14 +75,14 @@ public class BankTransactions {
 		try {
 			fromAccount = accounts.get(choice1);
 		} catch (IndexOutOfBoundsException e) {
-			logger.info("Transfer Funds: from Account " + e.getMessage());
+			logger.info("Transfer Funds: fromAccount " + e.getMessage());
 			System.out.println("Oops! An Error Caused the Program to Shut Down");
 			System.exit(1);
 		}
 		try {
 			toAccount = accounts.get(choice2);
 		} catch (IndexOutOfBoundsException e) {
-			logger.info("Transfer Funds: to Account " + e.getMessage());
+			logger.info("Transfer Funds: toAccount " + e.getMessage());
 			System.out.println("Oops! An Error Caused the Program to Shut Down");
 			System.exit(1);
 		}
@@ -104,14 +111,16 @@ public class BankTransactions {
 			transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(toAccount.getAccountNumber());
 			transaction.setTransactionAmount(transferAmt);
-			transaction.setDateInstance();
-			toAccount.addTransaction(transaction);			
+			transaction.setDateNow();
+			toAccount.addTransaction(transaction);	
+			toAccount.setBalance(toAccount.getBalance() + transferAmt);
 			impl.update(toAccount);
 			transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(fromAccount.getAccountNumber());
 			transaction.setTransactionAmount(-transferAmt);
-			transaction.setDateInstance();
-			fromAccount.addTransaction(transaction);			
+			transaction.setDateNow();
+			fromAccount.addTransaction(transaction);	
+			fromAccount.setBalance(fromAccount.getBalance() - transferAmt);
 			impl.update(fromAccount);
 		}
 		keyboard.close();
@@ -120,11 +129,11 @@ public class BankTransactions {
 	public static void makeDeposit(UserAccount user, BankAccount account) {
 		// TODO Auto-generated method stub
 		logger.info("Make Deposit Started");
+		keyboard = new Scanner(System.in);
 		Double deposit = 0.0;
 		Transaction transaction = new Transaction();
 		System.out.print(
 				"Deposit Funds into " + account.getAccountType() + " Account: " + account.getAccountNumber() + "? ");
-		Scanner keyboard = new Scanner(System.in);
 		char confirm = keyboard.nextLine().toUpperCase().charAt(0);
 		if (confirm == 'Y') {
 			System.out.print("Enter Amount to Deposit $");
@@ -138,8 +147,9 @@ public class BankTransactions {
 			transaction.setTransactionType(Transaction.deposit);
 			transaction.setAccountNumber(account.getAccountNumber());
 			transaction.setTransactionAmount(deposit);
-			transaction.setDateInstance();
+			transaction.setDateNow();
 			account.addTransaction(transaction);
+			account.setBalance(account.getBalance() + deposit);
 			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
 			impl.update(account);
 		}
@@ -171,11 +181,11 @@ public class BankTransactions {
 	public static void makeWithdrawl(UserAccount user, BankAccount account) {
 		// TODO Auto-generated method stub
 		logger.info("Make Withdrawl Started");
+		keyboard = new Scanner(System.in);
 		Double withdrawl = 0.0;
 		Transaction transaction = new Transaction();
 		System.out.print(
 				"Withdraw Funds from " + account.getAccountType() + " Account: " + account.getAccountNumber() + "? ");
-		Scanner keyboard = new Scanner(System.in);
 		char confirm = keyboard.nextLine().toUpperCase().charAt(0);
 		if (confirm == 'Y') {
 			System.out.print("Enter Amount to Withdraw $");
@@ -197,8 +207,9 @@ public class BankTransactions {
 			transaction.setAccountNumber(account.getAccountNumber());
 			transaction.setTransactionType(Transaction.withdrawl);
 			transaction.setTransactionAmount(-withdrawl);
-			transaction.setDateInstance();
+			transaction.setDateNow();
 			account.addTransaction(transaction);
+			account.setBalance(account.getBalance() - withdrawl);
 			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
 			impl.update(account);
 		}
@@ -208,7 +219,7 @@ public class BankTransactions {
 
 	public static void viewAccountHistory(BankAccount account) {
 		// TODO Auto-generated method stub
-		logger.info("View Account Started");
+		logger.info("View Account History Started");
 		Double tempBalance = 0.0;
 		System.out.println("Beginning Balance\t\t\t\t\t$" + df.format(tempBalance));
 		for (Transaction transaction : account.getTransactions()) {
@@ -226,6 +237,7 @@ public class BankTransactions {
 
 	public static void approvePendingRequests(Request request, boolean approve) {
 		// TODO Auto-generated method stub
+		logger.info("Approve Pending Request Started");
 		AccountRequestDbSvcImpl requestImpl = AccountRequestDbSvcImpl.getInstance();
 		UserAccountDbSvcImpl userImpl = UserAccountDbSvcImpl.getInstance();
 		UserAccount account = new UserAccount();
@@ -256,6 +268,7 @@ public class BankTransactions {
 
 	public static void closeAccount(UserAccount user, BankAccount account) {
 		// TODO Auto-generated method stub
+		logger.info("Close Account Started");
 		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
 		impl.delete(account);
 	}

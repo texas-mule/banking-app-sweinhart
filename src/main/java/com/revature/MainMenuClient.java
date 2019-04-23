@@ -10,6 +10,7 @@ import com.revature.domain.AccountRequest.Request;
 import com.revature.domain.Bank;
 import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
+import com.revature.domain.Login;
 import com.revature.domain.UserAccount;
 import com.revature.service.UserAccountDbSvcImpl;
 
@@ -30,6 +31,7 @@ public class MainMenuClient {
 	}
 
 	public void displayClientMenu() {
+		keyboard = new Scanner(System.in);
 		logger.info("Starting Client Main Menu");
 		System.out.println("\n\t\t\t" + Bank.getBankName() + "\t Routing Number: " + Bank.getRoutingNumber());
 		int choice = 0;
@@ -41,8 +43,9 @@ public class MainMenuClient {
 		System.out.println("Client Menu");
 		System.out.println("1 - Request to Open New Account");
 		System.out.println("2 - View Accounts");
+		System.out.println("3 - Change Your Password");
 		if (user.getAccessLvl() > 1)
-			System.out.println("3 - Main Menu");
+			System.out.println("4 - Main Menu");
 		System.out.println("9 - Logout");
 		System.out.print("Choice? ");
 		try {
@@ -53,7 +56,7 @@ public class MainMenuClient {
 		}
 		switch (choice) {
 		case 1:
-			requestAccountMenu();
+			requestAccount();
 			break;
 		case 2:
 			if (hasAccounts) {
@@ -64,6 +67,9 @@ public class MainMenuClient {
 			}
 			break;
 		case 3:
+			changePassword();
+			break;
+		case 4:
 			if (user.getAccessLvl() == 1) {
 				System.out.println("Invalid Choice.");
 				displayClientMenu();
@@ -80,8 +86,37 @@ public class MainMenuClient {
 		}
 	}
 
+	private void changePassword() {
+		// TODO Auto-generated method stub
+		keyboard = new Scanner(System.in);
+		logger.info("Starting Password Change");
+		System.out.println("\nEnter Old Password: ");
+		String password = keyboard.nextLine();
+		if (Login.getPasswordAccessLvlMatch(password, this.user.getLogin().getPassword()) == 0) {
+			System.out.println("Password does not match");
+			displayClientMenu();
+		}
+		do {
+		System.out.println("Enter New Password: ");
+		password = keyboard.nextLine();
+		} while (!Bank.validatePassword(password));
+		System.out.println("Confirm New Password: ");
+		String confirm = keyboard.nextLine();
+		if (confirm.equals(password)) {
+			this.user.getLogin().setPassword(password, this.user.getAccessLvl());
+			UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+			impl.update(this.user);
+			logger.info("Password Change Successful");
+			System.out.println("Password has been Updated");
+		} else
+			System.out.println("Passwords did not match");
+		displayClientMenu();		
+	}
+
 	protected void viewAccounts() {
 		// TODO Auto-generated method stub
+		keyboard = new Scanner(System.in);
+		logger.info("Starting Account Selection View");
 		int choice;
 		int index = 0;
 		do {
@@ -105,6 +140,7 @@ public class MainMenuClient {
 
 	protected void accountOperationsMenu(BankAccount account) {
 		// TODO Auto-generated method stub
+		keyboard = new Scanner(System.in);
 		int choice;
 		logger.info("Account Operations Menu Started");
 		System.out.print("\n" + account.getAccountType() + " Account: " + account.getAccountNumber());
@@ -155,46 +191,11 @@ public class MainMenuClient {
 		}
 	}
 
-	protected void requestAccountMenu() {
-		// TODO Auto-generated method stub
-		if (!user.getPendingRequests().getAccountRequests().isEmpty()) {
-			int numRequests = user.getPendingRequests().getAccountRequests().size();
-			System.out.println("\nYou Have " + numRequests + " Account Requests Pending");
-			int index = 0;
-			DecimalFormat df = new DecimalFormat("0.00");
-			for (Request request : user.getPendingRequests().getAccountRequests()) {
-				index++;
-				System.out.println(index + " - Pending " + request.getAccountType() + " Account\t\t Deposit - $"
-						+ df.format(request.getDeposit()));
-			}
-		}
-		System.out.println("\nRequest New Account?");
-		System.out.println("1 - New Account Request");
-		System.out.println("9 - Back to Main Menu");
-		System.out.print("Choice? ");
-		int choice;
-		try {
-			choice = keyboard.nextInt();
-		} catch (InputMismatchException e) {
-			logger.info("Handling Input Mismatch Exception");
-			choice = 0;
-		}
-		switch (choice) {
-		case 1:
-			requestAccount();
-			break;
-		case 9:
-			System.out.println();
-			displayClientMenu();
-			break;
-		default:
-			System.out.println("Invalid Choice.");
-			requestAccountMenu();
-		}
-	}
 
 	protected void requestAccount() {
 		// TODO Auto-generated method stub
+		keyboard = new Scanner(System.in);
+		logger.info("Starting Account Request Menu");
 		String accountType = "";
 		List<Request> currentRequests = user.getPendingRequests().getAccountRequests();
 		if (currentRequests.size() > 0) {
@@ -224,11 +225,11 @@ public class MainMenuClient {
 			accountType = user.getPendingRequests().saving;
 			break;
 		case 9:
-			requestAccountMenu();
+			displayClientMenu();
 			break;
 		default:
 			System.out.println("Invalid Choice.");
-			requestAccountMenu();
+			requestAccount();
 		}
 		System.out.println("\n1 - Single");
 		System.out.println("2 - Joint");
@@ -256,6 +257,7 @@ public class MainMenuClient {
 			boolean valid;
 			String ssNumber;
 			do {
+				keyboard = new Scanner(System.in);
 				valid = true;
 				System.out.print("Enter Social Security Number of Joint Account Holder: ");
 				ssNumber = keyboard.nextLine();
@@ -273,9 +275,14 @@ public class MainMenuClient {
 			} while (!valid);
 			UserAccount jointUser = new UserAccount();
 			jointUser = impl.getBySs(ssNumber);
+			if (jointUser.getId() == this.user.getId()) {
+				System.out.println("Joint Account Holder must be a different Person");
+				displayClientMenu();
+			}
 			if (jointUser.getId() == null) {
 				System.out.println("User Does Not Exist in the System");
 				jointUser = Bank.createUserAccount(1);
+				jointUser = impl.getBySs(jointUser.getSocialSecurity());
 			}
 			request.setAccountType(accountType);
 			request.addUserId(user.getId());
@@ -289,16 +296,19 @@ public class MainMenuClient {
 			Bank.addAccountRequest(request);
 			break;
 		case 3:
-			requestAccountMenu();
+			requestAccount();
 			break;
 		default:
 			System.out.println("Invalid Choice.");
 			requestAccount();
 		}
+		displayClientMenu();
 	}
 
 	protected Double getDeposit(String accountType) {
 		// TODO Auto-generated method stub
+		keyboard = new Scanner(System.in);
+		logger.info("Setting minimum deposit");
 		Double deposit;
 		Double requiredDeposit = 0.0;
 		do {

@@ -3,13 +3,11 @@ package com.revature.domain;
 import java.util.HashMap;
 
 public class Months {
-	private static HashMap<String, String> months;
 	
-	
+	private static HashMap<String, String> months = new HashMap<String, String>();	
 
-	public Months() {
-		// TODO Auto-generated constructor stub
-		months = new HashMap<String, String>();
+
+	public static HashMap<String, String> getMonths() {
 		months.put("Jan", "01");
 		months.put("Feb", "02");
 		months.put("Mar", "03");
@@ -22,10 +20,6 @@ public class Months {
 		months.put("Oct", "10");
 		months.put("Nov", "11");
 		months.put("Dec", "12");
-	}
-
-
-	public static HashMap<String, String> getMonths() {
 		return months;
 	}
 	
