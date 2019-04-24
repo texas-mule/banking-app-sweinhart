@@ -25,16 +25,51 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		this.user = user;
 	}
 
-	private void displayEmployeeMenu() {
+	public void displayMainMenu() {
+		logger.info("Starting Employee Inital Menu");
+		keyboard = new Scanner(System.in);
+		System.out.println("\n\t\t\t" + Bank.getBankName() + "\t Routing Number: " + Bank.getRoutingNumber());
+		int choice = 0;
+		System.out.println("\nSelect Personal/Client Accounts");
+		System.out.println("1 - Personal Accounts");
+		System.out.println("2 - Client Accounts");
+		System.out.println("3 - Add Bank Employee");
+		System.out.println("9 - Logout");
+		System.out.print("Choice? ");
+		try {
+			choice = keyboard.nextInt();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			choice = 0;
+		}
+		switch (choice) {
+		case 1:
+			displayClientMenu();
+			break;
+		case 2:
+			displayEmployeeMenu();
+			break;
+		case 3:
+			addEmployeeAccount();
+			break;
+		case 9:
+			LoginMenu login = new LoginMenu();
+			login.displayMenu();
+			break;
+		default:
+			System.out.println("Invalid Choice.");
+			displayMainMenu();
+		}
+	}
+	public void displayEmployeeMenu() {
 		// TODO Auto-generated method stub
 		logger.info("Starting Admin Menu");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		int choice = 0;
 		System.out.println("\nAdmin Menu");
 		System.out.println("1 - View Open Account Requests");
 		System.out.println("2 - View Customer Information");
-		System.out.println("3 - View Customer Accounts");
-		System.out.println("4 - Add Bank Employee");
+		System.out.println("3 - View Customer Accounts");		
 		System.out.println("9 - Return to Starting Menu");
 		System.out.print("Choice? ");
 		try {
@@ -60,10 +95,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 				displayClientBankAccountDetails(account);
 				displayAdminOperations(user, account);
 			}
-			break;
-		case 4:
-			addEmployeeAccount();
-			break;
+			break;		
 		case 9:
 			displayMainMenu();
 			break;
@@ -77,7 +109,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 	private void displayAdminOperations(UserAccount user, BankAccount account) {
 		// TODO Auto-generated method stub
 		logger.info("Starting Admin Operations");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		System.out.println("\nAdmin Operations");
 		System.out.println("1 - Deposit Into Client Account");
 		System.out.println("2 - Withdraw From Client Account");
@@ -118,7 +150,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 	private void addEmployeeAccount() {
 		// TODO Auto-generated method stub
 		logger.info("Starting new Employee Menu");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		System.out.println("\nAdd New Employee");
 		System.out.println("Has Employee already created a User Account?");
 		System.out.println("1 - Yes");
@@ -181,52 +213,41 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			System.out.println("Invalid Selection");
 			displayEmployeeMenu();
 		}
+		displayMainMenu();
 	}
 
 	protected void displayUserAccountDetails(UserAccount account) {
 		// TODO Auto-generated method stub
 		logger.info("Client Details");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		System.out.println("\nClient Details");
 		System.out.print(account.getLastName() + account.getFirstName());
 		System.out.print("\t");
-		switch (account.getAccessLvl()) {
-		case 1:
-			System.out.println("Bank Client");
-			break;
-		case 2:
-			System.out.println("Bank Employee");
-			break;
-		case 3:
-			System.out.println("Bank Administrator");
-			break;
-		}
-
 		System.out.print(account.getLastName() + ", " + account.getFirstName());
 		System.out.print("\t\t\t");
 		System.out.println();
-		System.out.print(account.getAddress1() + " #" + account.getAddress2());
-		System.out.print("\t\t\t\t");
+		System.out.print(account.getAddress1() + " " + account.getAddress2());
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getCity() + ", " + account.getState() + " " + account.getZipcode());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getPhone());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getEmail());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getSocialSecurity());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getDlState());
 		System.out.print(" License: " + account.getDlNumber());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print("Expires: ");
 		System.out.print(account.getDlExp());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 
 		displayAdminUserOperations(account);
 	}
@@ -234,8 +255,8 @@ public class MainMenuAdmin extends MainMenuEmployee {
 	private void displayAdminUserOperations(UserAccount user) {
 		// TODO Auto-generated method stub
 		logger.info("Admin Client Operations");
-		keyboard  = new Scanner(System.in);
-		System.out.println("\nAdmin Client Operations");
+		keyboard = new Scanner(System.in);
+		System.out.println("\n\nAdmin Client Operations");
 		System.out.println("1 - Edit User Account");
 		System.out.println("2 - Delete User Account");
 		System.out.println("3 - Back to Employee Menu");
@@ -266,7 +287,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 	private void deleteUserAccount(UserAccount user) {
 		// TODO Auto-generated method stub
 		logger.info("Delete user Account");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		System.out.println("\nWARNING: Deleting User Accounts will remove all associated Bank Accounts");
 		System.out.println("Confirm Delete of User: " + user.getLastName() + ", " + user.getFirstName());
 		System.out.println("1 - Yes");
@@ -306,7 +327,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		// TODO Auto-generated method stub
 		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
 		logger.info("Update User Account");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		System.out.println("\nEdit User Account");
 		System.out.println("1 - Change Client Username");
 		System.out.println("2 - Change Client Password");
@@ -346,7 +367,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		case 3:
 			System.out.print("Enter New First Name: ");
 			input = keyboard.nextLine();
-			String [] firstName = {input.substring(0, 1), input.substring(1)};
+			String[] firstName = { input.substring(0, 1), input.substring(1) };
 			input = firstName[0].toUpperCase() + firstName[1].toLowerCase();
 			if (Bank.validateName(input)) {
 				change = true;
@@ -354,7 +375,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			}
 			System.out.print("Enter New Last Name: ");
 			input = keyboard.nextLine();
-			String [] lastName = {input.substring(0, 1), input.substring(1)};
+			String[] lastName = { input.substring(0, 1), input.substring(1) };
 			input = lastName[0].toUpperCase() + lastName[1].toLowerCase();
 			if (Bank.validateName(input)) {
 				change = true;
@@ -364,7 +385,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		case 4:
 			System.out.print("Enter New Client Address1: ");
 			input = keyboard.nextLine();
-			String [] address = input.split(" ");
+			String[] address = input.split(" ");
 			input = address[0] + " ";
 			for (int i = 1; i < address.length; i++) {
 				address[i] = address[i].substring(0, 1).toUpperCase() + address[i].substring(1).toLowerCase();
@@ -384,7 +405,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 				System.out.println("Only Letters and Numbers are allowed");
 			System.out.print("Enter New Client City: ");
 			input = keyboard.nextLine();
-			String [] city = {input.substring(0, 1), input.substring(1)};
+			String[] city = { input.substring(0, 1), input.substring(1) };
 			input = city[0].toUpperCase() + city[1].toLowerCase();
 			if (Bank.validateCity(input)) {
 				change = true;
@@ -422,21 +443,21 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			break;
 		case 7:
 			System.out.print("Enter New Client Driver License State: ");
-			input = keyboard.nextLine();
-			UserAccount temp = impl.getByDl(user.getDlState(), user.getDlNumber());
-			if (temp.getId() != null && temp.getId() != user.getId()) {
-				System.out.println("Driver License is already in use");
-				editUserAccount(user);
-			}
-			if (Bank.validateState(input)) {
-				change = true;
-				user.setDlState(input);
-			}
-			System.out.print("Enter New Client Driver License Number: ");
-			input = keyboard.nextLine();
-			if (Bank.validateLicenseNumber(input)) {
-				change = true;
-				user.setDlNumber(input);
+			String state = keyboard.nextLine();
+			if (Bank.validateState(state)) {
+				System.out.print("Enter New Client Driver License Number: ");
+				String number = keyboard.nextLine();
+				if (Bank.validateLicenseNumber(number)) {
+					UserAccount temp = impl.getByDl(state, number);
+					if (temp.getId() != null && temp.getId() != user.getId()) {
+						System.out.println("Driver License is already in use");
+						editUserAccount(user);
+					} else {
+						change = true;
+						user.setDlState(state);
+						user.setDlNumber(number);
+					}
+				}
 			}
 			break;
 		case 9:

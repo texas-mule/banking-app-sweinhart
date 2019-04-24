@@ -63,7 +63,7 @@ public class Transaction implements Comparable<Transaction>{
 		this.time = time;
 	}
 	
-	public void setDateNow() {
+	private void setDateNow() {
 		dateInstance = new Date();
 		String dateString = dateInstance.toString();
 		String[] dateStringArray = dateString.toString().split(" ");

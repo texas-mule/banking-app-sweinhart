@@ -18,8 +18,7 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 	private static Logger logger = Logger.getLogger(BankAccountDbSvcImpl.class);
 	private static BankAccountDbSvcImpl instance = new BankAccountDbSvcImpl();
 	private static Connection conn;
-	private Integer integer;
-
+	
 	public BankAccountDbSvcImpl() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -84,13 +83,11 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 			pstmt.setInt(4, account.getAccountOwners().get(0));
 			if (account.getAccountOwners().size() > 1)
 				pstmt.setInt(5, account.getAccountOwners().get(1));
-			else {
-				integer = (Integer) null;
-				pstmt.setInt(5, integer);
-			}
+			else
+				pstmt.setInt(5, 0);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			logger.fatal("AccountRequests Table Creation Failed\n" + e.getMessage());
+			logger.fatal("BankAccount Addition Failed\n" + e.getMessage());
 			System.exit(1);
 		}
 		close();
@@ -107,7 +104,7 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 			pstmt.setInt(1, account.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			logger.fatal("AccountRequests Table Creation Failed\n" + e.getMessage());
+			logger.fatal("BankAccount Deletion Failed\n" + e.getMessage());
 			System.exit(1);
 		}
 		close();
@@ -152,9 +149,9 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 				bankAccount.setAccountType(rs.getString("accountType"));
 				bankAccount.setAccountNumber(rs.getInt("accountNumber"));
 				bankAccount.setBalance(rs.getDouble("balance"));
-				bankAccount.getAccountOwners().add(rs.getInt("client"));
+				bankAccount.getAccountOwners().add(rs.getInt("client1"));
 				Integer integer = (Integer) rs.getInt("client2");
-				if (integer != null)
+				if (integer != 0)
 					bankAccount.getAccountOwners().add(integer);
 				list.add(bankAccount);
 			}
@@ -178,9 +175,9 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 			bankAccount.setAccountType(rs.getString("accountType"));
 			bankAccount.setAccountNumber(rs.getInt("accountNumber"));
 			bankAccount.setBalance(rs.getDouble("balance"));
-			bankAccount.getAccountOwners().add(rs.getInt("client"));
+			bankAccount.getAccountOwners().add(rs.getInt("client1"));
 			Integer integer = (Integer) rs.getInt("client2");
-			if (integer != null)
+			if (integer != 0)
 				bankAccount.getAccountOwners().add(integer);
 		} catch (SQLException e) {
 			logger.info("BankAccount retrieval Failed\n" + e.getMessage());
@@ -203,9 +200,9 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 				bankAccount.setAccountType(rs.getString("accountType"));
 				bankAccount.setAccountNumber(rs.getInt("accountNumber"));
 				bankAccount.setBalance(rs.getDouble("balance"));
-				bankAccount.getAccountOwners().add(rs.getInt("client"));
+				bankAccount.getAccountOwners().add(rs.getInt("client1"));
 				Integer integer = (Integer) rs.getInt("client2");
-				if (integer != null)
+				if (integer != 0)
 					bankAccount.getAccountOwners().add(integer);
 				list.add(bankAccount);
 			}
@@ -227,12 +224,10 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 			pstmt.setInt(2, account.getAccountNumber());
 			pstmt.setDouble(3, account.getBalance());
 			pstmt.setInt(4, account.getAccountOwners().get(0));
-			Integer integer;
 			if (account.getAccountOwners().size() > 1)
-				integer = account.getAccountOwners().get(1);
+				pstmt.setInt(5, account.getAccountOwners().get(1));
 			else
-				integer = (Integer) null;
-			pstmt.setInt(5, integer);
+				pstmt.setInt(5, 0);			
 			pstmt.setInt(6, account.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {

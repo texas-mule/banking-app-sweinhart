@@ -1,15 +1,17 @@
 package com.revature;
 
 import com.revature.domain.Bank;
+import com.revature.domain.Login;
 import com.revature.domain.UserAccount;
+import com.revature.service.UserAccountDbSvcImpl;
 
 import java.io.IOException;
 import java.util.Scanner;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Layout;
+import org.apache.log4j.PatternLayout;
 
 /**
  * Banking App
@@ -21,7 +23,7 @@ public class BankingApp {
 
 	public static void main(String[] args) {
 		FileAppender fileAppender = new FileAppender();
-		Layout layout = new SimpleLayout();
+		Layout layout = new PatternLayout("%-5p [%t]: %m%n");
 		try {
 			fileAppender.setFile("log.txt", false, false, 8);
 			fileAppender.setLayout(layout);
@@ -33,29 +35,51 @@ public class BankingApp {
 		}
 		logger.addAppender(fileAppender);
 		Bank.initializeBank();
-		keyboard = new Scanner(System.in);		
+		keyboard = new Scanner(System.in);
 		logger.info("Banking Application Started");
 		if (args.length > 0) {
 			if (args[0].equals("admin")) {
+				UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+				UserAccount admin = impl.getByUsername("BankAdmin");
+				// TemporaryPassword = BankAdmin1234!
+				if (admin.getId() == null) {
+					Login login = new Login();
+					login.setUsername("BankAdmin");
+					login.setPassword("BankAdmin1234!", 3);
+					admin.setLogin(login);
+					admin.setFirstName("placeholder");
+					admin.setLastName("placeholder");
+					admin.setAddress1("Placeholder");
+					admin.setAddress2("Placeholder");
+					admin.setCity("placeholder");
+					admin.setState("placeholder");
+					admin.setZipCode("placeholder");
+					admin.setPhone("placeholder");
+					admin.setEmail("placeholder");
+					admin.setSocialSecurity("placeholder");
+					admin.setDlState("placeholder");
+					admin.setDlNumber("placeholder");
+					admin.setDlExp("placeholder");
+					impl.add(admin);
+					admin = impl.getByUsername("BankAdmin");
+				}
 				System.out.print("Enter Admin Password: ");
 				String password = keyboard.nextLine();
-				if (!password.equals("BankAdmin1234!")) {
-					System.out.println("Invalid Password. Exiting Application\n");
-					logger.info("Invalid password. Exiting Application!");
-					keyboard.close();
-					System.exit(0);
-				}
-				boolean adminExists = false;
-				for (UserAccount account : Bank.getUserAccounts()) {
-					if (account.getAccessLvl() == 3)
-						adminExists = true;
-				}
-				if (!adminExists) {
+				if (password.equals("BankAdmin1234!")
+						&& Login.getPasswordAccessLvlMatch("BankAdmin1234!", admin.getLogin().getPassword()) == 3) {
 					System.out.println("Admin Setup");
-					Bank.getUserAccounts().add(Bank.createUserAccount(3));
+					UserAccount newAdmin = new UserAccount();
+					newAdmin = Bank.createUserAccount(3);
+					Login login = admin.getLogin();
+					login.setUsername("BankAdmin");
+					login.setPassword(newAdmin.getLogin().getPassword());
+					admin.setLogin(login);
 					System.out.println("Admin Setup Completed. Please Log In.\n");
 				} else {
-					System.out.print("Admin Account Already Assigned - Please Log In");
+					if (Login.getPasswordAccessLvlMatch(password, admin.getLogin().getPassword()) == 3) {
+						System.out.println("Admin Account Already Assigned - Please Log In");
+					} else
+						System.out.println("Incorrect Password");
 				}
 			} else {
 				System.out.println("Invalid arguments");
@@ -63,12 +87,10 @@ public class BankingApp {
 				System.exit(0);
 			}
 		}
-		//Login Menu
-		LoginMenu menu = new LoginMenu();		
+		// Login Menu
+		LoginMenu menu = new LoginMenu();
 		menu.displayMenu();
 		logger.info("Application completed successfully");
 	}
-
-	
 
 }

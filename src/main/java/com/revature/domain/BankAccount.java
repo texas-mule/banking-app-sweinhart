@@ -11,7 +11,7 @@ public class BankAccount {
 	private Integer accountNumber;
 	private String accountType;  //checking or savings
 	private Double balance = 0.0;
-	private List<Integer> accountOwnerIds = new ArrayList<Integer>();
+	private List<String> accountOwnerSSnumbers = new ArrayList<String>();
 	private List<Transaction> transactions = new ArrayList<Transaction>();
 	
 	public List<Transaction> getTransactions() {
@@ -55,10 +55,10 @@ public class BankAccount {
 		this.balance = balance;
 	}
 	public List<Integer> getAccountOwners() {
-		return accountOwnerIds;
+		return accountOwnerSSnumbers;
 	}
 	public void setAccountOwners(List<Integer> accountOwners) {
-		this.accountOwnerIds = accountOwners;
+		this.accountOwnerSSnumbers = accountOwners;
 	}
 	
 }

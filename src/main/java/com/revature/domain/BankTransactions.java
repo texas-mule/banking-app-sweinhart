@@ -9,6 +9,7 @@ import com.revature.MainMenuEmployee;
 import com.revature.domain.AccountRequest.Request;
 import com.revature.service.AccountRequestDbSvcImpl;
 import com.revature.service.BankAccountDbSvcImpl;
+import com.revature.service.TransactionDbSvcImpl;
 import com.revature.service.UserAccountDbSvcImpl;
 
 import java.util.InputMismatchException;
@@ -111,14 +112,12 @@ public class BankTransactions {
 			transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(toAccount.getAccountNumber());
 			transaction.setTransactionAmount(transferAmt);
-			transaction.setDateNow();
 			toAccount.addTransaction(transaction);	
 			toAccount.setBalance(toAccount.getBalance() + transferAmt);
 			impl.update(toAccount);
 			transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(fromAccount.getAccountNumber());
 			transaction.setTransactionAmount(-transferAmt);
-			transaction.setDateNow();
 			fromAccount.addTransaction(transaction);	
 			fromAccount.setBalance(fromAccount.getBalance() - transferAmt);
 			impl.update(fromAccount);
@@ -147,7 +146,6 @@ public class BankTransactions {
 			transaction.setTransactionType(Transaction.deposit);
 			transaction.setAccountNumber(account.getAccountNumber());
 			transaction.setTransactionAmount(deposit);
-			transaction.setDateNow();
 			account.addTransaction(transaction);
 			account.setBalance(account.getBalance() + deposit);
 			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
@@ -207,7 +205,6 @@ public class BankTransactions {
 			transaction.setAccountNumber(account.getAccountNumber());
 			transaction.setTransactionType(Transaction.withdrawl);
 			transaction.setTransactionAmount(-withdrawl);
-			transaction.setDateNow();
 			account.addTransaction(transaction);
 			account.setBalance(account.getBalance() - withdrawl);
 			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
@@ -245,25 +242,37 @@ public class BankTransactions {
 			BankAccount newAccount = new BankAccount();
 			newAccount.setAccountType(request.getAccountType());
 			newAccount = Bank.assignAccountNumber(newAccount);
-			for (Integer i : request.getUserIds()) {
-				newAccount.getAccountOwners().add(request.getUserIds().get(i));
-				account = userImpl.getById(i);
+			for (Integer id : request.getUserIds())) {
+				newAccount.getAccountOwners().add(id);
+				account = userImpl.getById(id);
 				for (UserAccount u : Bank.getUserAccounts()) {
 					if (u.getId() == account.getId())
 						u.getAccounts().add(newAccount);
 				}
-			}			
+			}
+			Transaction transaction = new Transaction();
+			transaction.setAccountNumber(newAccount.getAccountNumber());
+			transaction.setTransactionType(Transaction.deposit);
+			transaction.setTransactionAmount(request.getDeposit());
+			TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
+			transImpl.add(transaction);
+			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
+			impl.add(newAccount);
+			System.out.println("\n" + newAccount.getAccountType() + " Account Has Been Opened" +
+					" - Account Number " + newAccount.getAccountNumber() + " with " +
+					"Opening deposit of $" + df.format(newAccount.getBalance()));
 		}
 		Bank.getAccountRequests().remove(request);
 		requestImpl.delete(request);
-		for (Integer i : request.getUserIds()) {
-			account = userImpl.getById(i);
+		for (Integer id : request.getUserIds()) {
+			account = userImpl.getById(id);
 			for (UserAccount u : Bank.getUserAccounts()) {
 				if (u.getId() == account.getId()) {
 					u.getPendingRequests().getAccountRequests().remove(request);
 				}
 			}
 		}
+		System.out.println("\nRequest has been Removed");
 	}
 
 	public static void closeAccount(UserAccount user, BankAccount account) {

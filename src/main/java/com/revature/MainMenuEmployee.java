@@ -1,9 +1,5 @@
 package com.revature;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +29,7 @@ public class MainMenuEmployee extends MainMenuClient {
 
 	public void displayMainMenu() {
 		logger.info("Starting Employee Inital Menu");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		System.out.println("\n\t\t\t" + Bank.getBankName() + "\t Routing Number: " + Bank.getRoutingNumber());
 		int choice = 0;
 		System.out.println("\nSelect Personal/Client Accounts");
@@ -64,10 +60,10 @@ public class MainMenuEmployee extends MainMenuClient {
 		}
 	}
 
-	private void displayEmployeeMenu() {
+	public void displayEmployeeMenu() {
 		// TODO Auto-generated method stub
 		logger.info("Starting Employee Menu");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		int choice = 0;
 		System.out.println("\nEmployee Menu");
 		System.out.println("1 - View Open Account Requests");
@@ -110,7 +106,7 @@ public class MainMenuEmployee extends MainMenuClient {
 	protected void displayClientBankAccountDetails(BankAccount account) {
 		// TODO Auto-generated method stub
 		logger.info("Starting Bank Account Details");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		System.out.println("\nBank Account Details");
 		System.out.println(account.getAccountType() + ": " + account.getAccountNumber() + "\tBalance $"
 				+ df.format(account.getBalance()));
@@ -121,7 +117,7 @@ public class MainMenuEmployee extends MainMenuClient {
 	protected BankAccount selectBankAccount(UserAccount user) {
 		// TODO Auto-generated method stub
 		logger.info("Starting Bank Account Selection Menu");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		int choice = 0;
 		int index = 0;
 		System.out.println("\nBank Account Selection Menu");
@@ -131,9 +127,10 @@ public class MainMenuEmployee extends MainMenuClient {
 		}
 		for (BankAccount acc : user.getAccounts()) {
 			index++;
-			System.out.println(index + " - " + acc.getAccountType() + ": " + acc.getAccountNumber() + "\tBalance $"
+			System.out.println(index + " - " + acc.getAccountType() + " Account: " + acc.getAccountNumber() + "\tBalance $"
 					+ df.format(acc.getBalance()));
 		}
+		System.out.println("0 - Back");
 		System.out.print("Choice? ");
 		try {
 			choice = keyboard.nextInt();
@@ -141,17 +138,20 @@ public class MainMenuEmployee extends MainMenuClient {
 			logger.info("Handling Input Mismatch Exception");
 			choice = 0;
 		}
-		if (choice < 1 || choice > index) {
+		if (choice == 0) {
+			displayClientSelectionMenu();
+		}
+		if (choice < 0 || choice > index) {
 			System.out.println("Invalid Selection");
 			selectBankAccount(user);
 		}
-		return user.getAccounts().get(choice);
+		return user.getAccounts().get(choice - 1);
 	}
 
 	protected UserAccount displayClientSelectionMenu() {
 		// TODO Auto-generated method stub
 		logger.info("Starting Client Account Selection Menu");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		System.out.println("\nBank Client List");
 		List<UserAccount> clients = new ArrayList<UserAccount>();
 		clients = Bank.getUserAccounts();
@@ -160,40 +160,21 @@ public class MainMenuEmployee extends MainMenuClient {
 		for (UserAccount account : clients) {
 			index++;
 			System.out.print(index + " - " + account.getLastName() + ", " + account.getFirstName());
-			System.out.print("\t");
-			switch (account.getAccessLvl()) {
-			case 1:
-				System.out.println("Bank Client");
-				break;
-			case 2:
-				System.out.println("Bank Employee");
-				break;
-			case 3:
-				System.out.println("Bank Administrator");
-				break;
-			}			
+			System.out.print("\tDL: " + account.getDlState() + " " + account.getDlNumber());
+			System.out.print("\n");
 		}
 		Integer choice = 0;
-		String choiceString = "";
-		System.out.println("Select Client Account OR ESC to go Back: ");
-		try (BufferedReader input = new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
-			char c;
-			do {
-				c = (char) input.read();
-			} while (c != 13 && c != 27);
-			if (c == 27)
-				displayEmployeeMenu();
-			else
-				choiceString += c;
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			logger.error(e.getMessage());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.error(e.getMessage());
+		System.out.println("0 - Back");
+		System.out.println("Select Client Account: ");
+		try {
+			choice = keyboard.nextInt();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			choice = 0;
 		}
-		choice = Integer.valueOf(choiceString);
-		if (choice == null || choice > index) {
+		if (choice == 0)
+			displayEmployeeMenu();
+		if (choice > index) {
 			System.out.println("Invalid Selection");
 			displayClientSelectionMenu();
 		}
@@ -205,74 +186,50 @@ public class MainMenuEmployee extends MainMenuClient {
 	protected void displayUserAccountDetails(UserAccount account) {
 		// TODO Auto-generated method stub
 		logger.info("Starting Client Account Details");
-		keyboard  = new Scanner(System.in);
-		System.out.println("\nClient Details");
-		System.out.print(account.getLastName() + account.getFirstName());
-		System.out.print("\t");
-		switch (account.getAccessLvl()) {
-		case 1:
-			System.out.println("Bank Client");
-			break;
-		case 2:
-			System.out.println("Bank Employee");
-			break;
-		case 3:
-			System.out.println("Bank Administrator");
-			break;
-		}
-
+		keyboard = new Scanner(System.in);
+		System.out.println("\nClient Details:");
 		System.out.print(account.getLastName() + ", " + account.getFirstName());
 		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getAddress1() + " #" + account.getAddress2());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getCity() + ", " + account.getState() + " " + account.getZipcode());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getPhone());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getEmail());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getSocialSecurity());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getDlState());
 		System.out.print(" License: " + account.getDlNumber());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print("Expires: ");
 		System.out.print(account.getDlExp());
-		System.out.print("\t\t\t\t");
+		System.out.print("\t\t\t");
 
-		System.out.println("\nPress Any Key to Return to Menu");
-		try (BufferedReader input = new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
-			char c;
-			do {
-				c = (char) input.read();
-			} while (c != 0);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			logger.error(e.getMessage());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.error(e.getMessage());
-		}
+		System.out.println("\n\nHit Enter to go back.");
+		keyboard.nextLine();
+		displayEmployeeMenu();
 	}
 
 	protected void displayOpenRequests() {
 		// TODO Auto-generated method stub
 		logger.info("Starting Client Account Requests View");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		List<AccountRequest.Request> openRequests = Bank.getAccountRequests();
 		// Cannot approve your own requests
 		List<AccountRequest.Request> requests = new ArrayList<AccountRequest.Request>();
 		boolean valid = true;
 		for (AccountRequest.Request request : openRequests) {
-			for (Integer i : request.getUserIds()) {
-				if (request.getUserIds().get(i) == this.user.getId())
+			for (String ss : request.getUserSSNumbers()) {
+				if (ss.equals(this.user.getSocialSecurity()))
 					valid = false;
 			}
 			if (valid)
@@ -289,8 +246,8 @@ public class MainMenuEmployee extends MainMenuClient {
 		for (AccountRequest.Request request : requests) {
 			index++;
 			System.out.print(index + " - " + request.getDate() + " ");
-			if (request.getUserIds().size() > 1)
-				System.out.println("Joint");
+			if (request.getUserSSNumbers().size() > 1)
+				System.out.print(" Joint");
 			System.out.print(" " + request.getAccountType() + " Account Request with Opening ");
 			System.out.println("Deposit $" + df.format(request.getDeposit()));
 		}
@@ -307,11 +264,11 @@ public class MainMenuEmployee extends MainMenuClient {
 		}
 		choice--;
 		AccountRequest.Request request = requests.get(choice);
-		System.out.println("Client Information");
+		System.out.println("\nClient Information");
 		List<UserAccount> accounts = new ArrayList<UserAccount>();
 		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
-		for (Integer id : request.getUserIds()) {
-			accounts.add(impl.getById(id));
+		for (String ss : request.getUserSSNumbers()) {
+			accounts.add(impl.getBySs(ss));
 		}
 
 		for (int i = 0; i < accounts.size(); i++) {
@@ -320,14 +277,14 @@ public class MainMenuEmployee extends MainMenuClient {
 		}
 		System.out.println();
 		for (int i = 0; i < accounts.size(); i++) {
-			System.out.print(accounts.get(i).getAddress1() + " #" + accounts.get(i).getAddress2());
+			System.out.print(accounts.get(i).getAddress1() + accounts.get(i).getAddress2());
 			System.out.print("\t\t\t\t");
 		}
 		System.out.println();
 		for (int i = 0; i < accounts.size(); i++) {
 			System.out.print(
 					accounts.get(i).getCity() + ", " + accounts.get(i).getState() + " " + accounts.get(i).getZipcode());
-			System.out.print("\t\t\t\t");
+			System.out.print("\t\t\t");
 		}
 		System.out.println();
 		for (int i = 0; i < accounts.size(); i++) {
@@ -337,7 +294,7 @@ public class MainMenuEmployee extends MainMenuClient {
 		System.out.println();
 		for (int i = 0; i < accounts.size(); i++) {
 			System.out.print(accounts.get(i).getEmail());
-			System.out.print("\t\t\t\t");
+			System.out.print("\t\t\t");
 		}
 		System.out.println();
 		for (int i = 0; i < accounts.size(); i++) {
@@ -348,16 +305,16 @@ public class MainMenuEmployee extends MainMenuClient {
 		for (int i = 0; i < accounts.size(); i++) {
 			System.out.print(accounts.get(i).getDlState());
 			System.out.print(" License: " + accounts.get(i).getDlNumber());
-			System.out.print("\t\t\t\t");
+			System.out.print("\t\t\t");
 		}
 		System.out.println();
 		for (int i = 0; i < accounts.size(); i++) {
 			System.out.print("Expires: ");
 			System.out.print(accounts.get(i).getDlExp());
-			System.out.print("\t\t\t\t");
+			System.out.print("\t\t\t");
 		}
 
-		System.out.println("\n1 - Approve Request");
+		System.out.println("\n\n1 - Approve Request");
 		System.out.println("2 - Deny Request");
 		System.out.println("9 - Back to Employee Menu");
 		System.out.print("Choice? ");

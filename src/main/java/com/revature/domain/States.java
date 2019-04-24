@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class States {
-	private List<String> stateAbr = new ArrayList<String>();
+	private static List<String> stateAbr = new ArrayList<String>();
 	
 	
 	

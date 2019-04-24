@@ -32,17 +32,17 @@ public class Bank {
 		UserAccount userAccount = new UserAccount();
 		for (AccountRequest.Request request : accountRequests) {
 			for (Integer id : request.getUserIds()) {
-				userAccount = userImpl.getById(id);
+				userAccount = userImpl.getById(id);				
 				AccountRequest userRequest = new AccountRequest();
 				userRequest = userAccount.getPendingRequests();
 				userRequest.addAccountRequest(request);
 				userAccount.setPendingRequests(userRequest);
+				
 			}
 		}
-		List<BankAccount> allAccounts = accountImpl.getAll();
-		int accountNumber = 0;
-		List<UserAccount> allUsers = userImpl.getAll();
-		for (BankAccount account : allAccounts) {
+		bankAccounts = accountImpl.getAll();
+		int accountNumber = 10000000;
+		for (BankAccount account : bankAccounts) {
 			account.setTransactions(transImpl.getAll(account.getAccountNumber()));
 			for (Integer i : account.getAccountOwners()) {
 				userAccount = userImpl.getById(i);
@@ -51,10 +51,13 @@ public class Bank {
 			if (account.getAccountNumber() > accountNumber)
 				accountNumber = account.getAccountNumber();
 		}
-		accountNumber++;
 		nextAccountNumber = accountNumber;
-		for (UserAccount user : allUsers) {
-			userAccounts.add(user);
+		List<UserAccount> users = new ArrayList<UserAccount>();
+		users = userImpl.getAll();
+		for (UserAccount user : users) {
+			if (!user.getLogin().getUsername().equals("BankAdmin")) {				
+				userAccounts.add(user);
+			}
 		}
 	}
 
@@ -100,8 +103,6 @@ public class Bank {
 	public static BankAccount assignAccountNumber(BankAccount account) {
 		account.setAccountNumber(nextAccountNumber);
 		nextAccountNumber++;
-		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
-		impl.add(account);
 		return account;
 	}
 	
@@ -355,7 +356,7 @@ public class Bank {
 
 	public static boolean validateState(String state) {
 		// TODO Auto-generated method stub
-		boolean valid = true;
+		boolean valid = false;
 		States states = new States();
 		for (String s : states.getStateAbr()) {
 			if (s.equals(state))

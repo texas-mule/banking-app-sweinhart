@@ -27,7 +27,7 @@ public class AccountRequest {
 		private Date dateInstance = new Date();
 		private String date;
 		private String time;
-		private List<Integer> userIds = new ArrayList<Integer>();
+		private List<String> ssNumbers = new ArrayList<String>();
 		
 		public Request() {
 			// TODO Auto-generated constructor stub
@@ -55,14 +55,14 @@ public class AccountRequest {
 			this.time = time;
 		}
 		
-		public List<Integer> getUserIds() {
-			return userIds;
+		public List<String> getUserSSNumbers() {
+			return ssNumbers;
 		}
-		public void addUserId(Integer id) {
-			userIds.add(id);
+		public void addUserSSNumber(String ss) {
+			ssNumbers.add(ss);
 		}		
-		public void delUserId(Integer id) {
-			userIds.remove(id);
+		public void delUserSSNumber(String ss) {
+			ssNumbers.remove(ss);
 		}
 		public String getAccountType() {
 			return accountType;

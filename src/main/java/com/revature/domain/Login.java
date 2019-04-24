@@ -8,8 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.log4j.Logger;
 
 public class Login {
-	static private String username;
-	static private String password;
+	private String username;
+	private String password;
 	static Logger logger = Logger.getLogger(Login.class);
 
 	public String getUsername() {
@@ -17,7 +17,7 @@ public class Login {
 	}
 
 	public void setUsername(String username) {
-		Login.username = username;
+		this.username = username;
 	}
 
 	public String getPassword() {
@@ -25,11 +25,11 @@ public class Login {
 	}
 
 	public void setPassword(String encodedPassword) {
-		Login.password = encodedPassword;
+		this.password = encodedPassword;
 	}
 	
 	public void setPassword(String password, Integer accessLvl) {
-		Login.password = encodePassword(password, accessLvl);
+		this.password = encodePassword(password, accessLvl);
 	}
 
 	private static String encodePassword(String password, Integer accessLvl) {
@@ -58,11 +58,11 @@ public class Login {
 			return 0;
 		String testPassword;
 		String [] access = {"1", "2", "3"};
-		for (int i = 1; i < 3; i++) {
-			testPassword = password + access[i-1];
+		for (int i = 0; i < 3; i++) {
+			testPassword = password + access[i];
 			try {
 				if (md5(testPassword).equals(storedPasswordMd5)) {
-					accessLvl = i;
+					accessLvl = i + 1;
 				}
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
