@@ -27,17 +27,17 @@ public class Bank {
 		AccountRequestDbSvcImpl requestImpl = AccountRequestDbSvcImpl.getInstance();
 		BankAccountDbSvcImpl accountImpl = BankAccountDbSvcImpl.getInstance();
 		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
-		UserAccountDbSvcImpl userImpl = UserAccountDbSvcImpl.getInstance();		
+		UserAccountDbSvcImpl userImpl = UserAccountDbSvcImpl.getInstance();
 		accountRequests = requestImpl.getAll();
 		UserAccount userAccount = new UserAccount();
 		for (AccountRequest.Request request : accountRequests) {
 			for (String id : request.getUserSSNumbers()) {
-				userAccount = userImpl.getBySs(id);				
+				userAccount = userImpl.getBySs(id);
 				AccountRequest userRequest = new AccountRequest();
 				userRequest = userAccount.getPendingRequests();
 				userRequest.addAccountRequest(request);
 				userAccount.setPendingRequests(userRequest);
-				
+
 			}
 		}
 		bankAccounts = accountImpl.getAll();
@@ -55,7 +55,7 @@ public class Bank {
 		List<UserAccount> users = new ArrayList<UserAccount>();
 		users = userImpl.getAll();
 		for (UserAccount user : users) {
-			if (!user.getLogin().getUsername().equals("BankAdmin")) {	
+			if (!user.getLogin().getUsername().equals("BankAdmin")) {
 				for (BankAccount account : bankAccounts) {
 					for (String ss : account.getAccountOwners())
 						if (user.getSocialSecurity().equals(ss))
@@ -72,7 +72,7 @@ public class Bank {
 		Collections.sort(accountRequests);
 		return accountRequests;
 	}
-	
+
 	public static void addAccountRequest(AccountRequest.Request request) {
 		accountRequests.add(request);
 		AccountRequestDbSvcImpl impl = AccountRequestDbSvcImpl.getInstance();
@@ -106,13 +106,13 @@ public class Bank {
 	public static List<BankAccount> getAccounts() {
 		return bankAccounts;
 	}
-	
+
 	public static BankAccount assignAccountNumber(BankAccount account) {
 		nextAccountNumber++;
 		account.setAccountNumber(nextAccountNumber);
 		return account;
 	}
-	
+
 	public static void addAccount(BankAccount account) {
 		bankAccounts.add(account);
 	}
@@ -124,7 +124,7 @@ public class Bank {
 	public static UserAccount createUserAccount(int accessLvl) {
 		// TODO Auto-generated method stub
 		logger.info("Creating New User Account");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
 		UserAccount account = new UserAccount();
 		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
 		Login login = new Login();
@@ -170,7 +170,7 @@ public class Bank {
 			System.out.print("Enter First Name: ");
 			firstName = keyboard.nextLine();
 			firstName = firstName.trim();
-			String [] name = {firstName.substring(0, 1), firstName.substring(1)};
+			String[] name = { firstName.substring(0, 1), firstName.substring(1) };
 			firstName = name[0].toUpperCase() + name[1].toLowerCase();
 			valid = validateName(firstName);
 		} while (!valid);
@@ -179,7 +179,7 @@ public class Bank {
 			System.out.print("Enter Last Name: ");
 			lastName = keyboard.nextLine();
 			lastName = lastName.trim();
-			String [] name = {lastName.substring(0, 1), lastName.substring(1)};
+			String[] name = { lastName.substring(0, 1), lastName.substring(1) };
 			lastName = name[0].toUpperCase() + name[1].toLowerCase();
 			valid = validateName(lastName);
 		} while (!valid);
@@ -187,30 +187,28 @@ public class Bank {
 			System.out.print("Enter Address1: ");
 			address1 = keyboard.nextLine();
 			address1 = address1.trim();
-			String [] address = address1.split(" ");
+			String[] address = address1.split(" ");
 			address1 = address[0] + " ";
 			for (int i = 1; i < address.length; i++) {
 				address[i] = address[i].substring(0, 1).toUpperCase() + address[i].substring(1).toLowerCase();
 				address1 += address[i] + " ";
 			}
 			address1 = address1.trim();
-			valid = validateAddress(address1);
-			if (!valid)
-				System.out.println("Invalid Address. Include Apt/Suite numbers in Address2.");
+			valid = validateAddress(address1);				
 		} while (!valid);
 		do {
-		System.out.print("Enter Address2: ");
-		address2 = keyboard.nextLine();
-		address2 = address2.trim();
-		valid = validateLettersAndNumbersOnly(address2);
-		if (!valid)
-			System.out.println("Only Letters and Numbers are allowed");
+			System.out.print("Enter Address2: ");
+			address2 = keyboard.nextLine();
+			address2 = address2.trim();
+			valid = validateLettersAndNumbersOnly(address2);
+			if (!valid)
+				System.out.println("Only Letters and Numbers are allowed");
 		} while (!valid);
 		do {
 			System.out.print("Enter City: ");
 			city = keyboard.nextLine();
 			city = city.trim();
-			String [] input = {city.substring(0, 1), city.substring(1)};
+			String[] input = { city.substring(0, 1), city.substring(1) };
 			city = input[0].toUpperCase() + input[1].toLowerCase();
 			valid = validateCity(city);
 		} while (!valid);
@@ -237,17 +235,18 @@ public class Bank {
 			email = keyboard.nextLine();
 			email = email.trim();
 			valid = validateEmail(email);
-			if (!valid) {
-				System.out.println("Invalid Email Address.");
-			}
 		} while (!valid);
 		do {
 			System.out.print("Enter Social Security Number: ");
 			ssNumber = keyboard.nextLine();
 			ssNumber = ssNumber.trim();
-			if (!ssNumber.contains("-"))
+			valid = true;
+			if (ssNumber.length() < 8)
+				valid = false;
+			if (valid && !ssNumber.contains("-"))
 				ssNumber = ssNumber.substring(0, 3) + "-" + ssNumber.substring(3, 5) + "-" + ssNumber.substring(5);
-			valid = validateSocialSecurity(ssNumber);			
+			if (valid)
+				valid = validateSocialSecurity(ssNumber);
 		} while (!valid);
 		do {
 			System.out.print("Enter Driver License State: ");
@@ -272,7 +271,9 @@ public class Bank {
 			System.out.print("Enter Driver License Expiration (##/##/####): ");
 			dlExp = keyboard.nextLine();
 			dlExp = dlExp.trim();
-			if (!dlExp.contains("/"))
+			if (dlExp.length() < 8)
+				valid = false;
+			if (valid && !dlExp.contains("/"))
 				dlExp = dlExp.substring(0, 2) + "/" + dlExp.substring(2, 4) + "/" + dlExp.substring(4);
 			valid = validateExpiration(dlExp);
 		} while (!valid);
@@ -386,11 +387,11 @@ public class Bank {
 		return valid;
 	}
 
-	public static boolean validateName(String firstName) {
+	public static boolean validateName(String name) {
 		// TODO Auto-generated method stub
 		boolean valid = true;
-		if (firstName.length() < 2 || !validateLettersOnly(firstName)) {
-			System.out.println("Invalid First Name.");
+		if (name.length() < 2 || !validateLettersOnly(name)) {
+			System.out.println("Invalid Name.");
 			valid = false;
 		}
 		return valid;
@@ -459,14 +460,14 @@ public class Bank {
 		if (!validateNumbersOnly(expString[0]) || !validateNumbersOnly(expString[1])
 				|| !validateNumbersOnly(expString[2]))
 			valid = false;
-		if (Integer.valueOf(expString[2]) < year) 
+		if (Integer.valueOf(expString[2]) < year)
 			valid = false;
 		if (Integer.valueOf(expString[2]) == year && Integer.valueOf(expString[0]) < month)
 			valid = false;
 		if (Integer.valueOf(expString[2]) == year && Integer.valueOf(expString[0]) == month
 				&& Integer.valueOf(expString[1]) < day)
 			valid = false;
-		if (!valid){
+		if (!valid) {
 			System.out.println("Invalid Driver License Expiration.");
 			valid = false;
 		}
@@ -483,8 +484,10 @@ public class Bank {
 			return false;
 		for (int i = 1; i < temp.length; i++) {
 			valid = validateLettersOnly(temp[i]);
-			if (!valid)
+			if (!valid) {
+				System.out.println("Invalid Address. Include Apt/Suite numbers in Address2.");
 				return false;
+			}
 		}
 		return valid;
 	}
@@ -549,7 +552,25 @@ public class Bank {
 				&& (email.endsWith(".com") || email.endsWith(".edu") || email.endsWith(".net") || email.endsWith(".org")
 						|| email.endsWith(".mil") || email.endsWith(".gov")))
 			return true;
-		else
+		else {
+			System.out.println("Invalid Email Address.");
 			return false;
+		}
+	}
+
+	public static void deleteAccount(BankAccount account) {
+		// TODO Auto-generated method stub
+		bankAccounts.remove(account);
+		for (UserAccount user : userAccounts)
+			for (BankAccount acc : user.getAccounts()) {
+				if (acc.getAccountNumber().equals(account.getAccountNumber())) {
+					user.getAccounts().remove(account);
+					break;
+				}
+			}
+		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
+		transImpl.delete(account.getAccountNumber());
+		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
+		impl.delete(account);
 	}
 }

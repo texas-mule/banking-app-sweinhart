@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.revature.service.TransactionDbSvcImpl;
 
-public class BankAccount {
+public class BankAccount implements Comparable<BankAccount>{
 	private Integer id;
 	private Integer accountNumber;
 	private String accountType;  //checking or savings
@@ -59,6 +59,11 @@ public class BankAccount {
 	}
 	public void setAccountOwners(List<String> accountOwners) {
 		this.accountOwnerSSnumbers = accountOwners;
+	}
+	@Override
+	public int compareTo(BankAccount o) {
+		// TODO Auto-generated method stub
+		return accountNumber.compareTo(o.accountNumber);
 	}
 	
 }

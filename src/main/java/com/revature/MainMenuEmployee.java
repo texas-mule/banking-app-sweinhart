@@ -24,7 +24,7 @@ public class MainMenuEmployee extends MainMenuClient {
 	public MainMenuEmployee(UserAccount user) {
 		super(user);
 		// TODO Auto-generated constructor stub
-		this.user = user;		
+		this.user = user;
 	}
 
 	public void displayMainMenu() {
@@ -84,12 +84,11 @@ public class MainMenuEmployee extends MainMenuClient {
 			displayOpenRequests();
 			break;
 		case 2:
-			user = displayClientSelectionMenu(false);
+			user = displayClientSelectionMenu();
 			displayUserAccountDetails(user);
 			break;
 		case 3:
-			user = displayClientSelectionMenu(true);
-			account = selectBankAccount(user);
+			account = displayAccountSelectionMenu();
 			if (account != null)
 				displayClientBankAccountDetails(account);
 			break;
@@ -101,6 +100,51 @@ public class MainMenuEmployee extends MainMenuClient {
 			displayEmployeeMenu();
 		}
 		displayEmployeeMenu();
+	}
+
+	protected BankAccount displayAccountSelectionMenu() {
+		// TODO Auto-generated method stub
+		keyboard = new Scanner(System.in);
+		int index = 0;
+		UserAccount user;
+		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		List<BankAccount> list = Bank.getAccounts();
+		if (list.size() == 0) {
+			System.out.println("No Bank Accounts in the System");
+			return null;
+		}
+		System.out.println();
+		Collections.sort(list);
+		for (BankAccount acc : list) {
+			index++;
+			System.out.print(index + " - Account #" + acc.getAccountNumber() + "\t");
+			System.out.print(acc.getAccountType());
+			if (acc.getAccountType().equals("Savings"))
+				System.out.print(" ");
+			System.out.print("\tOwners: ");
+			for (String ss : acc.getAccountOwners()) {
+				if (!ss.equals("0")) {
+					user = impl.getBySs(ss);
+					System.out.print(user.getLastName() + ", " + user.getFirstName() + "\t\t");
+				}				
+			}
+			System.out.println();
+		}
+		System.out.println("0 - Back");
+		System.out.print("Choice? ");
+		int choice = 0;
+		try {
+			choice = keyboard.nextInt();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			choice = 0;
+		}
+		if (choice < 0 || choice > index) {
+			System.out.println("Invalid Choice.");
+			displayEmployeeMenu();
+		}
+		choice--;
+		return list.get(choice);
 	}
 
 	protected void displayClientBankAccountDetails(BankAccount account) {
@@ -127,8 +171,8 @@ public class MainMenuEmployee extends MainMenuClient {
 		}
 		for (BankAccount acc : user.getAccounts()) {
 			index++;
-			System.out.println(index + " - " + acc.getAccountType() + " Account: " + acc.getAccountNumber() + "\tBalance $"
-					+ df.format(acc.getBalance()));
+			System.out.println(index + " - " + acc.getAccountType() + " Account: " + acc.getAccountNumber()
+					+ "\tBalance $" + df.format(acc.getBalance()));
 		}
 		System.out.println("0 - Back");
 		System.out.print("Choice? ");
@@ -148,23 +192,12 @@ public class MainMenuEmployee extends MainMenuClient {
 		return user.getAccounts().get(choice - 1);
 	}
 
-	protected UserAccount displayClientSelectionMenu(boolean viewBankAccounts) {
+	protected UserAccount displayClientSelectionMenu() {
 		// TODO Auto-generated method stub
 		logger.info("Starting Client Account Selection Menu");
 		keyboard = new Scanner(System.in);
 		System.out.println("\nBank Client List");
-		List<UserAccount> clients = new ArrayList<UserAccount>();
-		if (viewBankAccounts) {
-			for (UserAccount account : Bank.getUserAccounts()) {
-				if (account.getAccounts().size() > 0)
-					clients.add(account);
-			}
-		} else
-			clients = Bank.getUserAccounts();
-		if (clients.size() == 0) {
-			System.out.println("\nNo Bank Accounts have been Created");
-			displayEmployeeMenu();
-		}
+		List<UserAccount> clients = Bank.getUserAccounts();
 		Collections.sort(clients);
 		int index = 0;
 		for (UserAccount account : clients) {
@@ -186,7 +219,7 @@ public class MainMenuEmployee extends MainMenuClient {
 			displayEmployeeMenu();
 		if (choice > index) {
 			System.out.println("Invalid Selection");
-			displayClientSelectionMenu(viewBankAccounts);
+			displayClientSelectionMenu();
 		}
 		UserAccount account = new UserAccount();
 		account = clients.get(choice - 1);

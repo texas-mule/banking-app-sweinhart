@@ -97,7 +97,7 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 		// TODO Auto-generated method stub
 		boolean success = false;
 		connect();
-		String sql = "DELETE FROM BankAccount WHERE id = ?";
+		String sql = "DELETE FROM BankAccounts WHERE id = ?";
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setInt(1, account.getId());
 			pstmt.executeUpdate();

@@ -11,10 +11,7 @@ import com.revature.service.AccountRequestDbSvcImpl;
 import com.revature.service.BankAccountDbSvcImpl;
 import com.revature.service.TransactionDbSvcImpl;
 import com.revature.service.UserAccountDbSvcImpl;
-
-import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.List;
 
 public class BankTransactions {
 
@@ -30,59 +27,13 @@ public class BankTransactions {
 	public static void transferFunds(UserAccount user, BankAccount fromAccount, BankAccount toAccount) {
 		// TODO Auto-generated method stub
 		logger.info("Transfer Funds Started");
-		keyboard = new Scanner(System.in);
-		if (fromAccount.getAccountNumber().equals(toAccount.getAccountNumber()))
+		if (fromAccount.getAccountNumber().equals(toAccount.getAccountNumber())) {
+			System.out.println("Can't Transfer Funds to the same Account");
 			returnToMainMenu(user);
+		}
+		boolean valid;
 		Double transferAmt = 0.0;
-		List<BankAccount> accounts = new ArrayList<BankAccount>();
-		for (BankAccount otherAccounts : user.getAccounts())
-			if (otherAccounts.getAccountNumber() != account.getAccountNumber())
-				accounts.add(otherAccounts);
-		int index = 0;
-		int choice = 0;
-		boolean valid = true;
-		BankAccount fromAccount = new BankAccount();
-		BankAccount toAccount = new BankAccount();
-		do {
-			System.out.println("\nTransfer Funds From\n" + account.getAccountType() + " Account: "
-					+ account.getAccountNumber() + "\t\tBalance $" + df.format(account.getBalance()) + "\nTo");
-			for (BankAccount acc : accounts) {
-				index++;
-				System.out.println(index + " - " + acc.getAccountType() + ": " + acc.getAccountNumber()
-						+ "\tBalance:\t$" + acc.getBalance());
-			}
-			System.out.println("0 - Return to Main Menu");
-			System.out.print("Choice? ");
-			try {
-				choice = keyboard.nextInt();
-			} catch (InputMismatchException e) {
-				logger.info("Handling Input Mismatch Exception");
-				System.out.println("Invalid Input. Returning to Main Menu.");
-				returnToMainMenu(user);
-			}
-			if (choice < 0 || choice > index) {
-				valid = false;
-				System.out.println("Invalid Selections");
-			}
-			if (choice == 0) {
-				returnToMainMenu(user);
-			}
-		} while (!valid);
-		choice--;
-		try {
-			fromAccount = account;
-		} catch (IndexOutOfBoundsException e) {
-			logger.info("Transfer Funds: fromAccount " + e.getMessage());
-			System.out.println("Oops! An Error Caused the Program to Shut Down");
-			System.exit(1);
-		}
-		try {
-			toAccount = accounts.get(choice);
-		} catch (IndexOutOfBoundsException e) {
-			logger.info("Transfer Funds: toAccount " + e.getMessage());
-			System.out.println("Oops! An Error Caused the Program to Shut Down");
-			System.exit(1);
-		}
+		keyboard = new Scanner(System.in);
 		do {
 			valid = true;
 			System.out.print("Enter Amount to Transfer: $");
@@ -97,6 +48,10 @@ public class BankTransactions {
 				valid = false;
 				System.out.println("Transfer Amount Can Not Exceed the Account Balance");
 			}
+			if (transferAmt <= 0) {
+				valid = false;
+				System.out.println("Transfer Amount Must be Greater than $0");
+			}
 		} while (!valid);
 		Transaction transaction = new Transaction();
 		System.out.println("Transfer $" + df.format(transferAmt) + "\nFrom " + fromAccount.getAccountType() + ": "
@@ -105,6 +60,7 @@ public class BankTransactions {
 		System.out.println("1 - Yes");
 		System.out.println("2 - No");
 		System.out.print("Choice? ");
+		int choice = 0;
 		try {
 			choice = keyboard.nextInt();
 		} catch (InputMismatchException e) {
@@ -118,16 +74,9 @@ public class BankTransactions {
 			transaction.setAccountNumber(toAccount.getAccountNumber());
 			transaction.setTransactionAmount(transferAmt);
 			impl.add(transaction);
-			// toAccount.addTransaction(transaction);
-			// toAccount.setBalance(toAccount.getBalance() + transferAmt);
-			// impl.update(toAccount);
-			// transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(fromAccount.getAccountNumber());
 			transaction.setTransactionAmount(-transferAmt);
 			impl.add(transaction);
-			// fromAccount.addTransaction(transaction);
-			// fromAccount.setBalance(fromAccount.getBalance() - transferAmt);
-			// impl.update(fromAccount);
 			System.out.println("Transfer Complete");
 		}
 		returnToMainMenu(user);
@@ -305,6 +254,7 @@ public class BankTransactions {
 			transImpl.add(transaction);
 			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
 			impl.add(newAccount);
+			Bank.getAccounts().add(newAccount);
 			System.out.println("\n" + newAccount.getAccountType() + " Account Has Been Opened" + " - Account Number "
 					+ newAccount.getAccountNumber() + " with " + "Opening deposit of $"
 					+ df.format(newAccount.getBalance()));
@@ -319,13 +269,12 @@ public class BankTransactions {
 				}
 			}
 		}
-		System.out.println("Request has been Removed");
 	}
 
 	public static void closeAccount(UserAccount user, BankAccount account) {
 		// TODO Auto-generated method stub
 		logger.info("Close Account Started");
-		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
-		impl.delete(account);
+		Bank.deleteAccount(account);
+		System.out.println(account.getAccountType() + " Account: " + account.getAccountNumber() + " - Closed");
 	}
 }

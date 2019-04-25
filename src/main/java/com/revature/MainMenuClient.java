@@ -21,7 +21,7 @@ public class MainMenuClient {
 
 	public MainMenuClient(UserAccount user) {
 		// TODO Auto-generated constructor stub
-		this.user = user;				
+		this.user = user;
 	}
 
 	public void displayMainMenu() {
@@ -95,8 +95,8 @@ public class MainMenuClient {
 			displayClientMenu();
 		}
 		do {
-		System.out.println("Enter New Password: ");
-		password = keyboard.nextLine();
+			System.out.println("Enter New Password: ");
+			password = keyboard.nextLine();
 		} while (!Bank.validatePassword(password));
 		System.out.println("Confirm New Password: ");
 		String confirm = keyboard.nextLine();
@@ -108,7 +108,7 @@ public class MainMenuClient {
 			System.out.println("Password has been Updated");
 		} else
 			System.out.println("Passwords did not match");
-		displayClientMenu();		
+		displayClientMenu();
 	}
 
 	protected void viewAccounts() {
@@ -174,12 +174,29 @@ public class MainMenuClient {
 			break;
 		case 4:
 			if (user.getAccounts().size() > 1) {
+				BankAccount fromAccount = account;
+				int index = 0;
+				System.out.println("Transfer To:");
 				for (BankAccount acc : user.getAccounts()) {
-					index++;
-					System.out.println(index + " - " + acc.getAccountType() + ": " + acc.getAccountNumber()
-							+ "\tBalance:\t$" + acc.getBalance());
+					if (!acc.getAccountNumber().equals(acc.getAccountNumber())) {
+						index++;
+						System.out.println(index + " - " + acc.getAccountType() + " Account: " + acc.getAccountNumber()
+								+ "\t\tBalance $" + df.format(acc.getBalance()));
+					}
 				}
-				BankTransactions.transferFunds(user, account, account);
+				System.out.println("0 - Back");
+				System.out.print("Choice? ");
+				try {
+					choice = keyboard.nextInt();
+				} catch (InputMismatchException e) {
+					logger.info("Handling Input Mismatch Exception");
+					choice = 0;
+				}
+				if (choice <= 0 || choice > index)
+					accountOperationsMenu(account);
+				choice --;
+				BankAccount toAccount = user.getAccounts().get(choice);
+				BankTransactions.transferFunds(user, fromAccount, toAccount);
 				accountOperationsMenu(account);
 			} else {
 				System.out.println("Invalid Choice.");
@@ -194,7 +211,6 @@ public class MainMenuClient {
 			accountOperationsMenu(account);
 		}
 	}
-
 
 	protected void requestAccount() {
 		// TODO Auto-generated method stub

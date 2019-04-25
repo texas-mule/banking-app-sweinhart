@@ -142,5 +142,31 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 		logger.info("AccountRequests retrieved successfully");
 		return list;
 	}
+	
+	public boolean update(Request request) {
+		// TODO Auto-generated method stub
+		connect();
+		String sql = "UPDATE AccountRequests SET accountType = ? , deposit = ? , date = ? , time = ? , client1 = ?, client2 = ? "
+				+ "WHERE id = ?";
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, request.getAccountType());
+			pstmt.setDouble(2, request.getDeposit());
+			pstmt.setString(3, request.getDate());
+			pstmt.setString(4, request.getTime());
+			pstmt.setString(5, request.getUserSSNumbers().get(0));
+			if (request.getUserSSNumbers().size() > 1)
+				pstmt.setString(6, request.getUserSSNumbers().get(1));
+			else
+				pstmt.setInt(6, 0);
+			pstmt.setInt(7, request.getId());
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			logger.fatal("AccountRequest addition Failed\n" + e.getMessage());
+			System.exit(1);
+		}
+		close();
+		logger.info("AccountRequest added successfully");
+		return true;
+	}
 
 }

@@ -90,12 +90,12 @@ public class TransactionDbSvcImpl implements TransactionInterface{
 		return true;
 	}
 
-	public boolean delete(Integer transId) {
+	public boolean delete(Integer accountNumber) {
 		// TODO Auto-generated method stub
 		connect();
-		String sql = "DELETE FROM Transactions WHERE id = ?";
+		String sql = "DELETE FROM Transactions WHERE accountNumber = ?";
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setInt(1, transId);
+			pstmt.setInt(1, accountNumber);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			logger.fatal("Transaction deletion Failed\n" + e.getMessage());
