@@ -1,9 +1,5 @@
 package com.revature;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
@@ -22,7 +18,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 	public MainMenuAdmin(UserAccount user) {
 		super(user);
 		// TODO Auto-generated constructor stub
-		this.user = user;
+		this.user = user;		
 	}
 
 	public void displayMainMenu() {
@@ -85,11 +81,11 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			displayOpenRequests();
 			break;
 		case 2:
-			user = displayClientSelectionMenu();
+			user = displayClientSelectionMenu(false);
 			displayUserAccountDetails(user);
 			break;
 		case 3:
-			user = displayClientSelectionMenu();
+			user = displayClientSelectionMenu(true);
 			account = selectBankAccount(user);
 			if (account != null) {
 				displayClientBankAccountDetails(account);
@@ -132,10 +128,13 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			BankTransactions.makeWithdrawl(user, account);
 			break;
 		case 3:
-			BankTransactions.closeAccount(user, account);
+			System.out.println("\nSelect User to Transfer Funds To");
+			UserAccount toUser = displayClientSelectionMenu(true);
+			BankAccount fromAccount = selectBankAccount(toUser);
+			BankTransactions.transferFunds(this.user, toUser, fromAccount);
 			break;
 		case 4:
-			addEmployeeAccount();
+			BankTransactions.closeAccount(user, account);
 			break;
 		case 9:
 			displayEmployeeMenu();
@@ -163,36 +162,24 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			logger.info("Handling Input Mismatch Exception");
 			choice = 0;
 		}
+		keyboard = new Scanner(System.in);
 		switch (choice) {
 		case 1:
-			boolean valid = false;
-			String ss = "";
+			String ssNumber;
 			do {
-				System.out.println("Hit ESC to go back OR");
 				System.out.println("Enter Employee Social Security Number: ");
-				try (BufferedReader input = new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
-					char c;
-					do {
-						c = (char) input.read();
-					} while (c != 13 && c != 27);
-					if (c == 27)
-						addEmployeeAccount();
-					else
-						ss += c;
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					logger.error(e.getMessage());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					logger.error(e.getMessage());
-				}
-				if (Bank.validateSocialSecurity(ss))
-					valid = true;
-			} while (!valid);
+				ssNumber = keyboard.nextLine();
+				if (!ssNumber.contains("-"))
+					ssNumber = ssNumber.substring(0, 3) + "-" + ssNumber.substring(3, 5) + "-" + ssNumber.substring(5);
+			} while (!Bank.validateSocialSecurity(ssNumber));
 			UserAccount account = new UserAccount();
 			UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
-			account = impl.getBySs(ss);
-			if (account.getAccessLvl() == 2) {
+			account = impl.getBySs(ssNumber);
+			if (account.getId() == null) {
+				System.out.println("Employee is not registered in the system.");
+				displayMainMenu();
+			}
+			if (account.getAccessLvl() > 1) {
 				System.out.println("Employee is already in the System");
 				displayEmployeeMenu();
 			}
@@ -221,8 +208,6 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		logger.info("Client Details");
 		keyboard = new Scanner(System.in);
 		System.out.println("\nClient Details");
-		System.out.print(account.getLastName() + account.getFirstName());
-		System.out.print("\t");
 		System.out.print(account.getLastName() + ", " + account.getFirstName());
 		System.out.print("\t\t\t");
 		System.out.println();
@@ -339,7 +324,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		System.out.println("9 - Return to Employee Menu");
 		System.out.println("Choice? ");
 		int choice;
-		String input;
+		String input = "";
 		boolean change = false;
 		try {
 			choice = keyboard.nextInt();
@@ -347,6 +332,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			logger.info("Handling Input Mismatch Exception");
 			choice = 0;
 		}
+		keyboard = new Scanner(System.in);
 		switch (choice) {
 		case 1:
 			System.out.print("Enter New Client Username: ");
@@ -467,8 +453,10 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			editUserAccount(user);
 			break;
 		}
-		if (change)
+		if (change) {
 			impl.update(user);
+			System.out.println("Account Updated");
+		}
 		editUserAccount(user);
 	}
 

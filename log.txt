@@ -1,8 +1,11 @@
 INFO  [main]: Initializing Bank
 INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: Transactions retrieved successfully
 INFO  [main]: BankAccounts retrieved successfully
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: Transactions retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
@@ -14,11 +17,19 @@ INFO  [main]: Starting Login
 INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: Decoding password and access level
 INFO  [main]: Login Completed
-INFO  [main]: Logged in User with access level 2
+INFO  [main]: Logged in User with access level 3
 INFO  [main]: Starting Employee Inital Menu
-INFO  [main]: Starting Employee Menu
+INFO  [main]: Starting Admin Menu
 INFO  [main]: Starting Client Account Selection Menu
 INFO  [main]: Starting Bank Account Selection Menu
-INFO  [main]: Starting Employee Menu
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: Starting Bank Account Details
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: View Account History Started
+INFO  [main]: View History Completed
+INFO  [main]: Starting Admin Operations
 INFO  [main]: Starting Client Account Selection Menu
 INFO  [main]: Starting Bank Account Selection Menu
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: Transfer Funds Started
+INFO  [main]: Transactions retrieved successfully

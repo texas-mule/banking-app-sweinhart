@@ -52,8 +52,8 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 				+ "	deposit real NOT NULL,\n" 
 				+ "	date text NOT NULL,\n"
 				+ "	time text NOT NULL,\n" 
-				+ "	client1 integer NOT NULL,\n" 
-				+ "	client2 integer\n" 
+				+ "	client1 text NOT NULL,\n" 
+				+ "	client2 text\n" 
 				+ ");";
 		connect();
 		try {
@@ -80,9 +80,9 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 			pstmt.setDouble(2, request.getDeposit());
 			pstmt.setString(3, request.getDate());
 			pstmt.setString(4, request.getTime());
-			pstmt.setInt(5, request.getUserIds().get(0));
-			if (request.getUserIds().size() > 1)
-				pstmt.setInt(6, request.getUserIds().get(1));
+			pstmt.setString(5, request.getUserSSNumbers().get(0));
+			if (request.getUserSSNumbers().size() > 1)
+				pstmt.setString(6, request.getUserSSNumbers().get(1));
 			else
 				pstmt.setInt(6, 0);
 			pstmt.executeUpdate();
@@ -128,10 +128,10 @@ public class AccountRequestDbSvcImpl implements AccountRequestInterface {
 				request.setDeposit(rs.getDouble("deposit"));
 				request.setDate(rs.getString("date"));
 				request.setTime(rs.getString("time"));
-				request.getUserIds().add(rs.getInt("client1"));
-				Integer integer = (Integer) rs.getInt("client2");
-				if (integer != 0)
-					request.getUserIds().add(integer);
+				request.getUserSSNumbers().add(rs.getString("client1"));
+				String ssNum = rs.getString("client2");
+				if (!ssNum.equals(""))
+					request.getUserSSNumbers().add(ssNum);
 				list.add(request);
 			}
 		} catch (SQLException e) {

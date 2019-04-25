@@ -54,10 +54,10 @@ public class BankAccount {
 	public void setBalance(Double balance) {
 		this.balance = balance;
 	}
-	public List<Integer> getAccountOwners() {
+	public List<String> getAccountOwners() {
 		return accountOwnerSSnumbers;
 	}
-	public void setAccountOwners(List<Integer> accountOwners) {
+	public void setAccountOwners(List<String> accountOwners) {
 		this.accountOwnerSSnumbers = accountOwners;
 	}
 	

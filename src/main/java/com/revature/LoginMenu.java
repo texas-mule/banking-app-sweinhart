@@ -59,6 +59,10 @@ public class LoginMenu {
 		}
 		logger.info("Logged in User with access level " + user.getAccessLvl());
 		// Go to main screen
+		for (UserAccount account : Bank.getUserAccounts()) {
+			if (account.getSocialSecurity().equals(user.getSocialSecurity()))
+				user.setAccounts(account.getAccounts());
+		}
 		switch (user.getAccessLvl()) {
 		case 1:
 			MainMenuClient clientMenu = new MainMenuClient(user);

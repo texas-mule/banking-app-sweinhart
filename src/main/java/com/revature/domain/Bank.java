@@ -31,8 +31,8 @@ public class Bank {
 		accountRequests = requestImpl.getAll();
 		UserAccount userAccount = new UserAccount();
 		for (AccountRequest.Request request : accountRequests) {
-			for (Integer id : request.getUserIds()) {
-				userAccount = userImpl.getById(id);				
+			for (String id : request.getUserSSNumbers()) {
+				userAccount = userImpl.getBySs(id);				
 				AccountRequest userRequest = new AccountRequest();
 				userRequest = userAccount.getPendingRequests();
 				userRequest.addAccountRequest(request);
@@ -44,8 +44,8 @@ public class Bank {
 		int accountNumber = 10000000;
 		for (BankAccount account : bankAccounts) {
 			account.setTransactions(transImpl.getAll(account.getAccountNumber()));
-			for (Integer i : account.getAccountOwners()) {
-				userAccount = userImpl.getById(i);
+			for (String ss : account.getAccountOwners()) {
+				userAccount = userImpl.getBySs(ss);
 				userAccount.getAccounts().add(account);
 			}
 			if (account.getAccountNumber() > accountNumber)
@@ -55,13 +55,20 @@ public class Bank {
 		List<UserAccount> users = new ArrayList<UserAccount>();
 		users = userImpl.getAll();
 		for (UserAccount user : users) {
-			if (!user.getLogin().getUsername().equals("BankAdmin")) {				
+			if (!user.getLogin().getUsername().equals("BankAdmin")) {	
+				for (BankAccount account : bankAccounts) {
+					for (String ss : account.getAccountOwners())
+						if (user.getSocialSecurity().equals(ss))
+							user.getAccounts().add(account);
+				}
 				userAccounts.add(user);
 			}
 		}
 	}
 
 	public static List<AccountRequest.Request> getAccountRequests() {
+		AccountRequestDbSvcImpl impl = AccountRequestDbSvcImpl.getInstance();
+		accountRequests = impl.getAll();
 		Collections.sort(accountRequests);
 		return accountRequests;
 	}
@@ -101,8 +108,8 @@ public class Bank {
 	}
 	
 	public static BankAccount assignAccountNumber(BankAccount account) {
-		account.setAccountNumber(nextAccountNumber);
 		nextAccountNumber++;
+		account.setAccountNumber(nextAccountNumber);
 		return account;
 	}
 	
@@ -265,6 +272,8 @@ public class Bank {
 			System.out.print("Enter Driver License Expiration (##/##/####): ");
 			dlExp = keyboard.nextLine();
 			dlExp = dlExp.trim();
+			if (!dlExp.contains("/"))
+				dlExp = dlExp.substring(0, 2) + "/" + dlExp.substring(2, 4) + "/" + dlExp.substring(4);
 			valid = validateExpiration(dlExp);
 		} while (!valid);
 		account.setAccessLvl(accessLvl);
@@ -392,8 +401,8 @@ public class Bank {
 		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
 		UserAccount temp = new UserAccount();
 		boolean valid = true;
-		if (username.length() < 6) {
-			System.out.println("Username must be at least 6 characters.");
+		if (username.length() < 5) {
+			System.out.println("Username must be at least 5 characters.");
 			valid = false;
 		}
 		if (!validateLettersAndNumbersOnly(username)) {

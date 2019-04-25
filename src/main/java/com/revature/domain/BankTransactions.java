@@ -12,6 +12,7 @@ import com.revature.service.BankAccountDbSvcImpl;
 import com.revature.service.TransactionDbSvcImpl;
 import com.revature.service.UserAccountDbSvcImpl;
 
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 
@@ -20,68 +21,63 @@ public class BankTransactions {
 	private static Scanner keyboard;
 	private static Logger logger = Logger.getLogger(BankTransactions.class);
 	private static DecimalFormat df = new DecimalFormat("0.00");
-	
 
 	public BankTransactions() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void transferFunds(UserAccount user, BankAccount account) {
+	public static void transferFunds(UserAccount user, BankAccount fromAccount, BankAccount toAccount) {
 		// TODO Auto-generated method stub
 		logger.info("Transfer Funds Started");
-		keyboard  = new Scanner(System.in);
+		keyboard = new Scanner(System.in);
+		if (fromAccount.getAccountNumber().equals(toAccount.getAccountNumber()))
+			returnToMainMenu(user);
 		Double transferAmt = 0.0;
-		List<BankAccount> accounts = user.getAccounts();
-		int index = 1;
-		int choice1 = 0;
-		int choice2 = 0;
+		List<BankAccount> accounts = new ArrayList<BankAccount>();
+		for (BankAccount otherAccounts : user.getAccounts())
+			if (otherAccounts.getAccountNumber() != account.getAccountNumber())
+				accounts.add(otherAccounts);
+		int index = 0;
+		int choice = 0;
 		boolean valid = true;
 		BankAccount fromAccount = new BankAccount();
 		BankAccount toAccount = new BankAccount();
 		do {
-			System.out.println("\nTransfer Funds");
+			System.out.println("\nTransfer Funds From\n" + account.getAccountType() + " Account: "
+					+ account.getAccountNumber() + "\t\tBalance $" + df.format(account.getBalance()) + "\nTo");
 			for (BankAccount acc : accounts) {
+				index++;
 				System.out.println(index + " - " + acc.getAccountType() + ": " + acc.getAccountNumber()
 						+ "\tBalance:\t$" + acc.getBalance());
-				index++;
 			}
-			System.out.print("Select Account to Transfer From: ");
+			System.out.println("0 - Return to Main Menu");
+			System.out.print("Choice? ");
 			try {
-				choice1 = keyboard.nextInt();
+				choice = keyboard.nextInt();
 			} catch (InputMismatchException e) {
 				logger.info("Handling Input Mismatch Exception");
 				System.out.println("Invalid Input. Returning to Main Menu.");
 				returnToMainMenu(user);
 			}
-			System.out.print("Select Account to Transfer To: ");
-			try {
-				choice2 = keyboard.nextInt();
-			} catch (InputMismatchException e) {
-				logger.info("Handling Input Mismatch Exception");
-				System.out.println("Invalid Input. Returning to Main Menu.");
-				returnToMainMenu(user);
-			}
-			if (choice1 < 1 || choice2 < 1 || choice1 > index || choice2 > index) {
+			if (choice < 0 || choice > index) {
 				valid = false;
 				System.out.println("Invalid Selections");
 			}
-			if (choice1 == choice2) {
-				valid = false;
-				System.out.println("Cannot Transfer Funds to Same Account");
+			if (choice == 0) {
+				returnToMainMenu(user);
 			}
 		} while (!valid);
-		choice1--;
-		choice2--;
+		choice--;
 		try {
-			fromAccount = accounts.get(choice1);
+			fromAccount = account;
 		} catch (IndexOutOfBoundsException e) {
 			logger.info("Transfer Funds: fromAccount " + e.getMessage());
 			System.out.println("Oops! An Error Caused the Program to Shut Down");
 			System.exit(1);
 		}
 		try {
-			toAccount = accounts.get(choice2);
+			toAccount = accounts.get(choice);
 		} catch (IndexOutOfBoundsException e) {
 			logger.info("Transfer Funds: toAccount " + e.getMessage());
 			System.out.println("Oops! An Error Caused the Program to Shut Down");
@@ -103,26 +99,38 @@ public class BankTransactions {
 			}
 		} while (!valid);
 		Transaction transaction = new Transaction();
-		System.out.print("Transfer $" + df.format(transferAmt) + " From " + fromAccount.getAccountType() + ": "
+		System.out.println("Transfer $" + df.format(transferAmt) + "\nFrom " + fromAccount.getAccountType() + ": "
 				+ fromAccount.getAccountNumber() + " To " + toAccount.getAccountType() + ": "
-				+ toAccount.getAccountNumber() + "? ");
-		char confirm = keyboard.nextLine().toUpperCase().charAt(0);
-		if (confirm == 'Y') {
-			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
+				+ toAccount.getAccountNumber() + "?");
+		System.out.println("1 - Yes");
+		System.out.println("2 - No");
+		System.out.print("Choice? ");
+		try {
+			choice = keyboard.nextInt();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			System.out.println("Invalid Input. Returning to Main Menu.");
+			returnToMainMenu(user);
+		}
+		if (choice == 1) {
+			TransactionDbSvcImpl impl = TransactionDbSvcImpl.getInstance();
 			transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(toAccount.getAccountNumber());
 			transaction.setTransactionAmount(transferAmt);
-			toAccount.addTransaction(transaction);	
-			toAccount.setBalance(toAccount.getBalance() + transferAmt);
-			impl.update(toAccount);
-			transaction.setTransactionType(Transaction.transfer);
+			impl.add(transaction);
+			// toAccount.addTransaction(transaction);
+			// toAccount.setBalance(toAccount.getBalance() + transferAmt);
+			// impl.update(toAccount);
+			// transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(fromAccount.getAccountNumber());
 			transaction.setTransactionAmount(-transferAmt);
-			fromAccount.addTransaction(transaction);	
-			fromAccount.setBalance(fromAccount.getBalance() - transferAmt);
-			impl.update(fromAccount);
+			impl.add(transaction);
+			// fromAccount.addTransaction(transaction);
+			// fromAccount.setBalance(fromAccount.getBalance() - transferAmt);
+			// impl.update(fromAccount);
+			System.out.println("Transfer Complete");
 		}
-		keyboard.close();
+		returnToMainMenu(user);
 	}
 
 	public static void makeDeposit(UserAccount user, BankAccount account) {
@@ -131,10 +139,26 @@ public class BankTransactions {
 		keyboard = new Scanner(System.in);
 		Double deposit = 0.0;
 		Transaction transaction = new Transaction();
-		System.out.print(
-				"Deposit Funds into " + account.getAccountType() + " Account: " + account.getAccountNumber() + "? ");
-		char confirm = keyboard.nextLine().toUpperCase().charAt(0);
-		if (confirm == 'Y') {
+		System.out.println(
+				"\nDeposit Funds into " + account.getAccountType() + " Account " + account.getAccountNumber() + "?");
+		System.out.println("1 - Yes");
+		System.out.println("2 - No");
+		System.out.print("Choice? ");
+		int choice = 0;
+		try {
+			choice = keyboard.nextInt();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			System.out.println("Invalid Input. Returning to Main Menu.");
+			returnToMainMenu(user);
+		}
+		if (choice < 1 || choice > 2) {
+			System.out.println("Invalid Input. Returning to Main Menu.");
+			returnToMainMenu(user);
+		}
+		if (choice != 1)
+			returnToMainMenu(user);
+		else {
 			System.out.print("Enter Amount to Deposit $");
 			try {
 				deposit = keyboard.nextDouble();
@@ -148,10 +172,10 @@ public class BankTransactions {
 			transaction.setTransactionAmount(deposit);
 			account.addTransaction(transaction);
 			account.setBalance(account.getBalance() + deposit);
-			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
-			impl.update(account);
+			TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
+			transImpl.add(transaction);
+			System.out.println("Deposit Completed");
 		}
-		keyboard.close();
 	}
 
 	private static void returnToMainMenu(UserAccount user) {
@@ -182,35 +206,52 @@ public class BankTransactions {
 		keyboard = new Scanner(System.in);
 		Double withdrawl = 0.0;
 		Transaction transaction = new Transaction();
-		System.out.print(
-				"Withdraw Funds from " + account.getAccountType() + " Account: " + account.getAccountNumber() + "? ");
-		char confirm = keyboard.nextLine().toUpperCase().charAt(0);
-		if (confirm == 'Y') {
-			System.out.print("Enter Amount to Withdraw $");
-			try {
-				withdrawl = keyboard.nextDouble();
-			} catch (InputMismatchException e) {
-				logger.info("Handling Input Mismatch Exception");
-				System.out.println("Invalid Input. Returning to Main Menu.");
-				makeWithdrawl(user, account);
-			}
-			if (withdrawl > account.getBalance()) {
-				System.out.println("Cannot Withdraw more than Account Balance");
-				makeWithdrawl(user, account);
-			}
-			if (withdrawl <= 0) {
-				System.out.println("Invalid Withdrawl Amount");
-				makeWithdrawl(user, account);
-			}
-			transaction.setAccountNumber(account.getAccountNumber());
-			transaction.setTransactionType(Transaction.withdrawl);
-			transaction.setTransactionAmount(-withdrawl);
-			account.addTransaction(transaction);
-			account.setBalance(account.getBalance() - withdrawl);
-			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
-			impl.update(account);
+		System.out.println(
+				"\nWithdraw Funds from " + account.getAccountType() + " Account " + account.getAccountNumber() + "?");
+		System.out.println("1 - Yes");
+		System.out.println("2 - No");
+		System.out.print("Choice? ");
+		int choice = 0;
+		try {
+			choice = keyboard.nextInt();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			System.out.println("Invalid Input. Returning to Main Menu.");
+			returnToMainMenu(user);
 		}
-		keyboard.close();
+		if (choice < 1 || choice > 2) {
+			System.out.println("Invalid Input. Returning to Main Menu.");
+			returnToMainMenu(user);
+		}
+		if (choice != 1)
+			returnToMainMenu(user);
+
+		System.out.print("Enter Amount to Withdraw $");
+		try {
+			withdrawl = keyboard.nextDouble();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			System.out.println("Invalid Input. Returning to Main Menu.");
+			makeWithdrawl(user, account);
+		}
+		if (withdrawl > account.getBalance()) {
+			System.out.println("Cannot Withdraw more than Account Balance");
+			makeWithdrawl(user, account);
+		}
+		if (withdrawl <= 0) {
+			System.out.println("Invalid Withdrawl Amount");
+			makeWithdrawl(user, account);
+		}
+		transaction.setAccountNumber(account.getAccountNumber());
+		transaction.setTransactionType(Transaction.withdrawl);
+		transaction.setTransactionAmount(-withdrawl);
+		account.addTransaction(transaction);
+		account.setBalance(account.getBalance() - withdrawl);
+		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
+		transImpl.add(transaction);
+		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
+		impl.update(account);
+		System.out.println("Withdrawl Completed");
 		logger.info("Make Withdrawl Completed");
 	}
 
@@ -218,15 +259,21 @@ public class BankTransactions {
 		// TODO Auto-generated method stub
 		logger.info("View Account History Started");
 		Double tempBalance = 0.0;
-		System.out.println("Beginning Balance\t\t\t\t\t$" + df.format(tempBalance));
+		System.out.println("Beginning Balance\t\t\t\t$" + df.format(tempBalance));
 		for (Transaction transaction : account.getTransactions()) {
 			tempBalance += transaction.getTransactionAmount();
-			System.out.print(transaction.getDate() + " - " + transaction.getTransactionType() + "\t\t\t\t");
-			if (transaction.getTransactionAmount() < 0)
-				System.out.print("-$");
+			System.out.print(transaction.getDate() + " - " + transaction.getTransactionType());
+			if (transaction.getTransactionType().equals(Transaction.transfer))
+				System.out.print("\t\t\t");
 			else
+				System.out.print("\t\t\t\t");
+			if (transaction.getTransactionAmount() < 0) {
+				System.out.print("-$");
+				System.out.println(df.format(Math.abs(transaction.getTransactionAmount())));
+			} else {
 				System.out.print("+$");
-			System.out.println(df.format(transaction.getTransactionAmount()));
+				System.out.println(df.format(transaction.getTransactionAmount()));
+			}
 			System.out.println("Ending Balance\t\t\t\t\t$" + df.format(tempBalance));
 		}
 		logger.info("View History Completed");
@@ -242,9 +289,9 @@ public class BankTransactions {
 			BankAccount newAccount = new BankAccount();
 			newAccount.setAccountType(request.getAccountType());
 			newAccount = Bank.assignAccountNumber(newAccount);
-			for (Integer id : request.getUserIds())) {
+			for (String id : request.getUserSSNumbers()) {
 				newAccount.getAccountOwners().add(id);
-				account = userImpl.getById(id);
+				account = userImpl.getBySs(id);
 				for (UserAccount u : Bank.getUserAccounts()) {
 					if (u.getId() == account.getId())
 						u.getAccounts().add(newAccount);
@@ -258,21 +305,21 @@ public class BankTransactions {
 			transImpl.add(transaction);
 			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
 			impl.add(newAccount);
-			System.out.println("\n" + newAccount.getAccountType() + " Account Has Been Opened" +
-					" - Account Number " + newAccount.getAccountNumber() + " with " +
-					"Opening deposit of $" + df.format(newAccount.getBalance()));
+			System.out.println("\n" + newAccount.getAccountType() + " Account Has Been Opened" + " - Account Number "
+					+ newAccount.getAccountNumber() + " with " + "Opening deposit of $"
+					+ df.format(newAccount.getBalance()));
 		}
 		Bank.getAccountRequests().remove(request);
 		requestImpl.delete(request);
-		for (Integer id : request.getUserIds()) {
-			account = userImpl.getById(id);
+		for (String id : request.getUserSSNumbers()) {
+			account = userImpl.getBySs(id);
 			for (UserAccount u : Bank.getUserAccounts()) {
 				if (u.getId() == account.getId()) {
 					u.getPendingRequests().getAccountRequests().remove(request);
 				}
 			}
 		}
-		System.out.println("\nRequest has been Removed");
+		System.out.println("Request has been Removed");
 	}
 
 	public static void closeAccount(UserAccount user, BankAccount account) {

@@ -39,8 +39,8 @@ public class UserAccount implements Comparable<UserAccount>{
 			List<AccountRequest.Request> requests = impl.getAll();
 			AccountRequest userRequests = new AccountRequest();
 			for (AccountRequest.Request request : requests) {
-				for (Integer id : request.getUserIds()) {
-					if (id == this.getId()) {
+				for (String id : request.getUserSSNumbers()) {
+					if (id.equals(this.getSocialSecurity())) {
 						userRequests.addAccountRequest(request);
 					}
 				}

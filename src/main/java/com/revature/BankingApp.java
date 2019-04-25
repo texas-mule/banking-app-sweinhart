@@ -70,10 +70,8 @@ public class BankingApp {
 					System.out.println("Admin Setup");
 					UserAccount newAdmin = new UserAccount();
 					newAdmin = Bank.createUserAccount(3);
-					Login login = admin.getLogin();
-					login.setUsername("BankAdmin");
-					login.setPassword(newAdmin.getLogin().getPassword());
-					admin.setLogin(login);
+					admin.getLogin().setPassword(newAdmin.getLogin().getPassword());
+					impl.update(admin);
 					System.out.println("Admin Setup Completed. Please Log In.\n");
 				} else {
 					if (Login.getPasswordAccessLvlMatch(password, admin.getLogin().getPassword()) == 3) {

@@ -24,7 +24,7 @@ public class MainMenuEmployee extends MainMenuClient {
 	public MainMenuEmployee(UserAccount user) {
 		super(user);
 		// TODO Auto-generated constructor stub
-		this.user = user;
+		this.user = user;		
 	}
 
 	public void displayMainMenu() {
@@ -84,11 +84,11 @@ public class MainMenuEmployee extends MainMenuClient {
 			displayOpenRequests();
 			break;
 		case 2:
-			user = displayClientSelectionMenu();
+			user = displayClientSelectionMenu(false);
 			displayUserAccountDetails(user);
 			break;
 		case 3:
-			user = displayClientSelectionMenu();
+			user = displayClientSelectionMenu(true);
 			account = selectBankAccount(user);
 			if (account != null)
 				displayClientBankAccountDetails(account);
@@ -108,7 +108,7 @@ public class MainMenuEmployee extends MainMenuClient {
 		logger.info("Starting Bank Account Details");
 		keyboard = new Scanner(System.in);
 		System.out.println("\nBank Account Details");
-		System.out.println(account.getAccountType() + ": " + account.getAccountNumber() + "\tBalance $"
+		System.out.println(account.getAccountType() + ": " + account.getAccountNumber() + "\t\t\tBalance $"
 				+ df.format(account.getBalance()));
 		System.out.println("Transaction History:");
 		BankTransactions.viewAccountHistory(account);
@@ -139,7 +139,7 @@ public class MainMenuEmployee extends MainMenuClient {
 			choice = 0;
 		}
 		if (choice == 0) {
-			displayClientSelectionMenu();
+			displayEmployeeMenu();
 		}
 		if (choice < 0 || choice > index) {
 			System.out.println("Invalid Selection");
@@ -148,13 +148,23 @@ public class MainMenuEmployee extends MainMenuClient {
 		return user.getAccounts().get(choice - 1);
 	}
 
-	protected UserAccount displayClientSelectionMenu() {
+	protected UserAccount displayClientSelectionMenu(boolean viewBankAccounts) {
 		// TODO Auto-generated method stub
 		logger.info("Starting Client Account Selection Menu");
 		keyboard = new Scanner(System.in);
 		System.out.println("\nBank Client List");
 		List<UserAccount> clients = new ArrayList<UserAccount>();
-		clients = Bank.getUserAccounts();
+		if (viewBankAccounts) {
+			for (UserAccount account : Bank.getUserAccounts()) {
+				if (account.getAccounts().size() > 0)
+					clients.add(account);
+			}
+		} else
+			clients = Bank.getUserAccounts();
+		if (clients.size() == 0) {
+			System.out.println("\nNo Bank Accounts have been Created");
+			displayEmployeeMenu();
+		}
 		Collections.sort(clients);
 		int index = 0;
 		for (UserAccount account : clients) {
@@ -165,7 +175,7 @@ public class MainMenuEmployee extends MainMenuClient {
 		}
 		Integer choice = 0;
 		System.out.println("0 - Back");
-		System.out.println("Select Client Account: ");
+		System.out.print("Choice? ");
 		try {
 			choice = keyboard.nextInt();
 		} catch (InputMismatchException e) {
@@ -176,7 +186,7 @@ public class MainMenuEmployee extends MainMenuClient {
 			displayEmployeeMenu();
 		if (choice > index) {
 			System.out.println("Invalid Selection");
-			displayClientSelectionMenu();
+			displayClientSelectionMenu(viewBankAccounts);
 		}
 		UserAccount account = new UserAccount();
 		account = clients.get(choice - 1);
@@ -191,7 +201,7 @@ public class MainMenuEmployee extends MainMenuClient {
 		System.out.print(account.getLastName() + ", " + account.getFirstName());
 		System.out.print("\t\t\t");
 		System.out.println();
-		System.out.print(account.getAddress1() + " #" + account.getAddress2());
+		System.out.print(account.getAddress1() + " " + account.getAddress2());
 		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getCity() + ", " + account.getState() + " " + account.getZipcode());
@@ -237,7 +247,7 @@ public class MainMenuEmployee extends MainMenuClient {
 			valid = true;
 		}
 		if (requests.size() == 0) {
-			System.out.println("\nThere are Currently No Open Requests");
+			System.out.println("\nThere are Currently No Open Requests that You can Approve");
 			displayEmployeeMenu();
 		}
 		System.out.println("\nCurrent Open Requests");
@@ -245,30 +255,38 @@ public class MainMenuEmployee extends MainMenuClient {
 		int choice = 0;
 		for (AccountRequest.Request request : requests) {
 			index++;
+			boolean joint = true;
+			for (String ss : request.getUserSSNumbers())
+				if (ss.equals("0"))
+					joint = false;
 			System.out.print(index + " - " + request.getDate() + " ");
-			if (request.getUserSSNumbers().size() > 1)
+			if (joint)
 				System.out.print(" Joint");
 			System.out.print(" " + request.getAccountType() + " Account Request with Opening ");
 			System.out.println("Deposit $" + df.format(request.getDeposit()));
 		}
-		System.out.print("Select Request: ");
+		System.out.println("0 - Back");
+		System.out.print("Choice: ");
 		try {
 			choice = keyboard.nextInt();
 		} catch (InputMismatchException e) {
 			logger.info("Handling Input Mismatch Exception");
 			choice = 0;
 		}
-		if (choice < 1 || choice > index) {
+		if (choice == 0)
+			displayEmployeeMenu();
+		if (choice < 0 || choice > index) {
 			System.out.println("Invalid Input");
 			displayOpenRequests();
 		}
 		choice--;
 		AccountRequest.Request request = requests.get(choice);
-		System.out.println("\nClient Information");
+		System.out.println("\nClient Information:");
 		List<UserAccount> accounts = new ArrayList<UserAccount>();
 		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
 		for (String ss : request.getUserSSNumbers()) {
-			accounts.add(impl.getBySs(ss));
+			if (!ss.equals("0"))
+				accounts.add(impl.getBySs(ss));
 		}
 
 		for (int i = 0; i < accounts.size(); i++) {
@@ -325,15 +343,15 @@ public class MainMenuEmployee extends MainMenuClient {
 			choice = 0;
 		}
 
-		boolean approve;
+		boolean approval;
 		switch (choice) {
 		case 1:
-			approve = true;
-			BankTransactions.approvePendingRequests(request, approve);
+			approval = true;
+			BankTransactions.approvePendingRequests(request, approval);
 			break;
 		case 2:
-			approve = false;
-			BankTransactions.approvePendingRequests(request, approve);
+			approval = false;
+			BankTransactions.approvePendingRequests(request, approval);
 			break;
 		case 9:
 			displayEmployeeMenu();

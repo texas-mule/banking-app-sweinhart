@@ -1,12 +1,10 @@
 package com.revature;
 
-import java.util.List;
 import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
 import com.revature.domain.AccountRequest;
-import com.revature.domain.AccountRequest.Request;
 import com.revature.domain.Bank;
 import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
@@ -23,7 +21,7 @@ public class MainMenuClient {
 
 	public MainMenuClient(UserAccount user) {
 		// TODO Auto-generated constructor stub
-		this.user = user;
+		this.user = user;				
 	}
 
 	public void displayMainMenu() {
@@ -134,6 +132,7 @@ public class MainMenuClient {
 				choice = 0;
 			}
 		} while (choice < 1 || choice > index);
+		choice--;
 		BankAccount account = user.getAccounts().get(choice);
 		accountOperationsMenu(account);
 	}
@@ -144,7 +143,7 @@ public class MainMenuClient {
 		int choice;
 		logger.info("Account Operations Menu Started");
 		System.out.print("\n" + account.getAccountType() + " Account: " + account.getAccountNumber());
-		System.out.print("\t\t\t\t\tBalance: $" + df.format(account.getBalance()));
+		System.out.print("\t\tBalance: $" + df.format(account.getBalance()));
 		System.out.println("\nAccount Operations Menu");
 		System.out.println("1 - View Account History");
 		System.out.println("2 - Make a Withdrawl");
@@ -175,7 +174,12 @@ public class MainMenuClient {
 			break;
 		case 4:
 			if (user.getAccounts().size() > 1) {
-				BankTransactions.transferFunds(user, account);
+				for (BankAccount acc : user.getAccounts()) {
+					index++;
+					System.out.println(index + " - " + acc.getAccountType() + ": " + acc.getAccountNumber()
+							+ "\tBalance:\t$" + acc.getBalance());
+				}
+				BankTransactions.transferFunds(user, account, account);
 				accountOperationsMenu(account);
 			} else {
 				System.out.println("Invalid Choice.");
@@ -197,10 +201,9 @@ public class MainMenuClient {
 		keyboard = new Scanner(System.in);
 		logger.info("Starting Account Request Menu");
 		String accountType = "";
-		List<Request> currentRequests = user.getPendingRequests().getAccountRequests();
-		if (currentRequests.size() > 0) {
+		if (user.getPendingRequests().getAccountRequests().size() > 0) {
 			System.out.println("\nCurrent Account Requests Not Yet Approved");
-			for (AccountRequest.Request request : currentRequests) {
+			for (AccountRequest.Request request : user.getPendingRequests().getAccountRequests()) {
 				System.out.println("Date Requested: " + request.getDate() + "\tAccount Type: "
 						+ request.getAccountType() + "\tDeposit Ammount: $" + df.format(request.getDeposit()));
 			}
@@ -247,7 +250,7 @@ public class MainMenuClient {
 		switch (choice) {
 		case 1:
 			request.setAccountType(accountType);
-			request.addUserId(user.getId());
+			request.addUserSSNumber(user.getSocialSecurity());
 			request.setDeposit(getDeposit(accountType));
 			userRequest.addAccountRequest(request);
 			Bank.addAccountRequest(request);
@@ -285,8 +288,8 @@ public class MainMenuClient {
 				jointUser = impl.getBySs(jointUser.getSocialSecurity());
 			}
 			request.setAccountType(accountType);
-			request.addUserId(user.getId());
-			request.addUserId(jointUser.getId());
+			request.addUserSSNumber(user.getSocialSecurity());
+			request.addUserSSNumber(jointUser.getSocialSecurity());
 			request.setDeposit(getDeposit(accountType));
 			userRequest.addAccountRequest(request);
 			user.setPendingRequests(userRequest);
@@ -302,6 +305,7 @@ public class MainMenuClient {
 			System.out.println("Invalid Choice.");
 			requestAccount();
 		}
+		System.out.println("Your Request has been sent to the Bank");
 		displayClientMenu();
 	}
 

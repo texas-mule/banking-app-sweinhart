@@ -51,9 +51,8 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 				+ " id integer PRIMARY KEY,\n"
 				+ "	accountType text NOT NULL,\n" 
 				+ "	accountNumber integer NOT NULL,\n"
-				+ "	balance real NOT NULL,\n" 
-				+ "	client1 integer NOT NULL,\n" 
-				+ "	client2 integer\n" 
+				+ "	client1 text NOT NULL,\n" 
+				+ "	client2 text\n" 
 				+ ");";
 		connect();
 		try {
@@ -74,17 +73,16 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 	public boolean add(BankAccount account) {
 		// TODO Auto-generated method stub
 		connect();
-		String sql = "INSERT INTO BankAccounts(accountType, accountNumber, balance, client1, client2) "
-				+ "VALUES(?,?,?,?,?)";
+		String sql = "INSERT INTO BankAccounts(accountType, accountNumber, client1, client2) "
+				+ "VALUES(?,?,?,?)";
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, account.getAccountType());
 			pstmt.setInt(2, account.getAccountNumber());
-			pstmt.setDouble(3, account.getBalance());
-			pstmt.setInt(4, account.getAccountOwners().get(0));
+			pstmt.setString(3, account.getAccountOwners().get(0));
 			if (account.getAccountOwners().size() > 1)
-				pstmt.setInt(5, account.getAccountOwners().get(1));
+				pstmt.setString(4, account.getAccountOwners().get(1));
 			else
-				pstmt.setInt(5, 0);
+				pstmt.setInt(4, 0);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			logger.fatal("BankAccount Addition Failed\n" + e.getMessage());
@@ -113,10 +111,10 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 		UserAccount user = new UserAccount();
 		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
 		int index = 0;
-		for (Integer ownerId : account.getAccountOwners()) {
-			user = userImpl.getById(ownerId);
+		for (String ownerId : account.getAccountOwners()) {
+			user = userImpl.getBySs(ownerId);
 			for (UserAccount u : Bank.getUserAccounts()) {
-				if (u.getId() == user.getId())
+				if (u.getSocialSecurity().equals(user.getSocialSecurity()))
 					Bank.getUserAccounts().get(index).getAccounts().remove(account);
 				index++;
 				break;
@@ -137,22 +135,22 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 		account = impl.getByUsername(username);
 		List<BankAccount> list = new ArrayList<BankAccount>();
 		connect();
-		String sql = "SELECT id, accountType, accountNumber, balance, client1, client2 "
+		String sql = "SELECT id, accountType, accountNumber, client1, client2 "
 				+ "FROM BankAccounts WHERE client1 = ? OR client2 = ?";
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setInt(1, account.getId());
-			pstmt.setInt(2, account.getId());
+			pstmt.setString(1, account.getSocialSecurity());
+			pstmt.setString(2, account.getSocialSecurity());
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				BankAccount bankAccount = new BankAccount();
 				bankAccount.setId(rs.getInt("id"));
 				bankAccount.setAccountType(rs.getString("accountType"));
 				bankAccount.setAccountNumber(rs.getInt("accountNumber"));
-				bankAccount.setBalance(rs.getDouble("balance"));
-				bankAccount.getAccountOwners().add(rs.getInt("client1"));
-				Integer integer = (Integer) rs.getInt("client2");
-				if (integer != 0)
-					bankAccount.getAccountOwners().add(integer);
+				bankAccount.getAccountOwners().add(rs.getString("client1"));
+				String ssNum = rs.getString("client2");
+				if (!ssNum.equals(""))
+					bankAccount.getAccountOwners().add(ssNum);
+				bankAccount.setBalance(bankAccount.getBalance());
 				list.add(bankAccount);
 			}
 		} catch (SQLException e) {
@@ -165,7 +163,7 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 
 	public BankAccount getAccount(Integer accountNumber) {
 		connect();
-		String sql = "SELECT id, accountType, accountNumber, balance, client1, client2 "
+		String sql = "SELECT id, accountType, accountNumber, client1, client2 "
 				+ "FROM BankAccounts WHERE accountNumber = ?";
 		BankAccount bankAccount = new BankAccount();
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -174,11 +172,11 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 			bankAccount.setId(rs.getInt("id"));
 			bankAccount.setAccountType(rs.getString("accountType"));
 			bankAccount.setAccountNumber(rs.getInt("accountNumber"));
-			bankAccount.setBalance(rs.getDouble("balance"));
-			bankAccount.getAccountOwners().add(rs.getInt("client1"));
-			Integer integer = (Integer) rs.getInt("client2");
-			if (integer != 0)
-				bankAccount.getAccountOwners().add(integer);
+			bankAccount.getAccountOwners().add(rs.getString("client1"));
+			String ssNum = rs.getString("client2");
+			if (!ssNum.equals(""))
+				bankAccount.getAccountOwners().add(ssNum);
+			bankAccount.setBalance(bankAccount.getBalance());
 		} catch (SQLException e) {
 			logger.info("BankAccount retrieval Failed\n" + e.getMessage());
 		}
@@ -191,7 +189,7 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 		// TODO Auto-generated method stub
 		List<BankAccount> list = new ArrayList<BankAccount>();
 		connect();
-		String sql = "SELECT id, accountType, accountNumber, balance, client1, client2 " + "FROM BankAccounts";
+		String sql = "SELECT id, accountType, accountNumber, client1, client2 " + "FROM BankAccounts";
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -199,11 +197,11 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 				bankAccount.setId(rs.getInt("id"));
 				bankAccount.setAccountType(rs.getString("accountType"));
 				bankAccount.setAccountNumber(rs.getInt("accountNumber"));
-				bankAccount.setBalance(rs.getDouble("balance"));
-				bankAccount.getAccountOwners().add(rs.getInt("client1"));
-				Integer integer = (Integer) rs.getInt("client2");
-				if (integer != 0)
-					bankAccount.getAccountOwners().add(integer);
+				bankAccount.getAccountOwners().add(rs.getString("client1"));
+				String ssNum = rs.getString("client2");
+				if (!ssNum.equals(""))
+					bankAccount.getAccountOwners().add(ssNum);
+				bankAccount.setBalance(bankAccount.getBalance());
 				list.add(bankAccount);
 			}
 		} catch (SQLException e) {
@@ -218,17 +216,16 @@ public final class BankAccountDbSvcImpl implements BankAccountInterface {
 		// TODO Auto-generated method stub
 		connect();
 		String sql = "UPDATE BankAccounts SET accountType = ? , accountNumber = ? , "
-				+ "balance = ? , client1 = ? , client2 = ? " + "WHERE id = ?";
+				+ "client1 = ? , client2 = ? " + "WHERE id = ?";
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, account.getAccountType());
 			pstmt.setInt(2, account.getAccountNumber());
-			pstmt.setDouble(3, account.getBalance());
-			pstmt.setInt(4, account.getAccountOwners().get(0));
+			pstmt.setString(3, account.getAccountOwners().get(0));
 			if (account.getAccountOwners().size() > 1)
-				pstmt.setInt(5, account.getAccountOwners().get(1));
+				pstmt.setString(4, account.getAccountOwners().get(1));
 			else
-				pstmt.setInt(5, 0);			
-			pstmt.setInt(6, account.getId());
+				pstmt.setString(4, "");			
+			pstmt.setInt(5, account.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			logger.fatal("BankAccount update Failed\n" + e.getMessage());
