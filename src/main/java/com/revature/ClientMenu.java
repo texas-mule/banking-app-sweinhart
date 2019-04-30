@@ -10,16 +10,16 @@ import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
 import com.revature.domain.Login;
 import com.revature.domain.UserAccount;
-import com.revature.service.UserAccountDbSvcImpl;
+import com.revature.service.UserAccountDAO;
 
-public class MainMenuClient {
+public class ClientMenu {
 
 	private UserAccount user;
 	private static Scanner keyboard;
-	private static Logger logger = Logger.getLogger(MainMenuClient.class);
+	private static Logger logger = Logger.getLogger(ClientMenu.class);
 	DecimalFormat df = new DecimalFormat("0.00");
 
-	public MainMenuClient(UserAccount user) {
+	public ClientMenu(UserAccount user) {
 		// TODO Auto-generated constructor stub
 		this.user = user;
 	}
@@ -60,7 +60,7 @@ public class MainMenuClient {
 			if (hasAccounts) {
 				viewAccounts();
 			} else {
-				System.out.println("You Have No Open Accounts");
+				System.out.println("\nYou Have No Open Accounts");
 				displayClientMenu();
 			}
 			break;
@@ -102,7 +102,7 @@ public class MainMenuClient {
 		String confirm = keyboard.nextLine();
 		if (confirm.equals(password)) {
 			this.user.getLogin().setPassword(password, this.user.getAccessLvl());
-			UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+			UserAccountDAO impl = UserAccountDAO.getConnection();
 			impl.update(this.user);
 			logger.info("Password Change Successful");
 			System.out.println("Password has been Updated");
@@ -262,7 +262,7 @@ public class MainMenuClient {
 		}
 		AccountRequest userRequest = user.getPendingRequests();
 		AccountRequest.Request request = userRequest.new Request();
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		switch (choice) {
 		case 1:
 			request.setAccountType(accountType);

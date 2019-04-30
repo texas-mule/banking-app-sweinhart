@@ -3,8 +3,8 @@ package com.revature;
 import com.revature.domain.Bank;
 import com.revature.domain.Login;
 import com.revature.domain.UserAccount;
-import com.revature.service.UserAccountDbSvcImpl;
-
+import com.revature.service.BankDBSetup;
+import com.revature.service.UserAccountDAO;
 import java.io.IOException;
 import java.util.Scanner;
 import org.apache.log4j.BasicConfigurator;
@@ -34,12 +34,13 @@ public class BankingApp {
 			e.printStackTrace();
 		}
 		logger.addAppender(fileAppender);
+		BankDBSetup.createBankAppTables();
 		Bank.initializeBank();
 		keyboard = new Scanner(System.in);
 		logger.info("Banking Application Started");
 		if (args.length > 0) {
 			if (args[0].equals("admin")) {
-				UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+				UserAccountDAO impl = UserAccountDAO.getConnection();
 				UserAccount admin = impl.getByUsername("BankAdmin");
 				// TemporaryPassword = BankAdmin1234!
 				if (admin.getId() == null) {

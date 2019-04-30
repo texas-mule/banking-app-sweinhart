@@ -3,14 +3,14 @@ package com.revature.domain;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-import com.revature.MainMenuAdmin;
-import com.revature.MainMenuClient;
-import com.revature.MainMenuEmployee;
+import com.revature.AdminMenu;
+import com.revature.ClientMenu;
+import com.revature.EmployeeMenu;
 import com.revature.domain.AccountRequest.Request;
-import com.revature.service.AccountRequestDbSvcImpl;
-import com.revature.service.BankAccountDbSvcImpl;
-import com.revature.service.TransactionDbSvcImpl;
-import com.revature.service.UserAccountDbSvcImpl;
+import com.revature.service.AccountRequestDAO;
+import com.revature.service.BankAccountDAO;
+import com.revature.service.TransactionDAO;
+import com.revature.service.UserAccountDAO;
 import java.util.InputMismatchException;
 
 public class BankTransactions {
@@ -69,13 +69,17 @@ public class BankTransactions {
 			returnToMainMenu(user);
 		}
 		if (choice == 1) {
-			TransactionDbSvcImpl impl = TransactionDbSvcImpl.getInstance();
+			TransactionDAO impl = TransactionDAO.getConnection();
 			transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(toAccount.getAccountNumber());
 			transaction.setTransactionAmount(transferAmt);
+			toAccount.addTransaction(transaction);
 			impl.add(transaction);
+			transaction = new Transaction();
+			transaction.setTransactionType(Transaction.transfer);
 			transaction.setAccountNumber(fromAccount.getAccountNumber());
 			transaction.setTransactionAmount(-transferAmt);
+			fromAccount.addTransaction(transaction);
 			impl.add(transaction);
 			System.out.println("Transfer Complete");
 		}
@@ -121,7 +125,7 @@ public class BankTransactions {
 			transaction.setTransactionAmount(deposit);
 			account.addTransaction(transaction);
 			account.setBalance(account.getBalance() + deposit);
-			TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
+			TransactionDAO transImpl = TransactionDAO.getConnection();
 			transImpl.add(transaction);
 			System.out.println("Deposit Completed");
 		}
@@ -131,16 +135,16 @@ public class BankTransactions {
 		// TODO Auto-generated method stub
 		switch (user.getAccessLvl()) {
 		case 1:
-			MainMenuClient clientMenu = new MainMenuClient(user);
+			ClientMenu clientMenu = new ClientMenu(user);
 			clientMenu.displayMainMenu();
 			break;
 		case 2:
-			MainMenuEmployee emplMenu = new MainMenuEmployee(user);
-			emplMenu.displayMainMenu();
+			EmployeeMenu emplMenu = new EmployeeMenu(user);
+			emplMenu.displayEmployeeMenu();
 			break;
 		case 3:
-			MainMenuAdmin adminMenu = new MainMenuAdmin(user);
-			adminMenu.displayMainMenu();
+			AdminMenu adminMenu = new AdminMenu(user);
+			adminMenu.displayEmployeeMenu();
 			break;
 		default:
 			logger.info("Invalid user access level argument. Exiting Application!");
@@ -196,10 +200,8 @@ public class BankTransactions {
 		transaction.setTransactionAmount(-withdrawl);
 		account.addTransaction(transaction);
 		account.setBalance(account.getBalance() - withdrawl);
-		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
+		TransactionDAO transImpl = TransactionDAO.getConnection();
 		transImpl.add(transaction);
-		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
-		impl.update(account);
 		System.out.println("Withdrawl Completed");
 		logger.info("Make Withdrawl Completed");
 	}
@@ -231,8 +233,8 @@ public class BankTransactions {
 	public static void approvePendingRequests(Request request, boolean approve) {
 		// TODO Auto-generated method stub
 		logger.info("Approve Pending Request Started");
-		AccountRequestDbSvcImpl requestImpl = AccountRequestDbSvcImpl.getInstance();
-		UserAccountDbSvcImpl userImpl = UserAccountDbSvcImpl.getInstance();
+		AccountRequestDAO requestImpl = AccountRequestDAO.getConnection();
+		UserAccountDAO userImpl = UserAccountDAO.getConnection();
 		UserAccount account = new UserAccount();
 		if (approve) {
 			BankAccount newAccount = new BankAccount();
@@ -250,10 +252,13 @@ public class BankTransactions {
 			transaction.setAccountNumber(newAccount.getAccountNumber());
 			transaction.setTransactionType(Transaction.deposit);
 			transaction.setTransactionAmount(request.getDeposit());
-			TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
+			TransactionDAO transImpl = TransactionDAO.getConnection();
 			transImpl.add(transaction);
-			BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
+			BankAccountDAO impl = BankAccountDAO.getConnection();
 			impl.add(newAccount);
+			newAccount = impl.getAccount(newAccount.getAccountNumber());
+			newAccount = impl.getAccount(newAccount.getAccountNumber());
+			newAccount.addTransaction(transaction);
 			Bank.getAccounts().add(newAccount);
 			System.out.println("\n" + newAccount.getAccountType() + " Account Has Been Opened" + " - Account Number "
 					+ newAccount.getAccountNumber() + " with " + "Opening deposit of $"

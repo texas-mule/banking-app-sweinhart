@@ -12,16 +12,16 @@ import com.revature.domain.Bank;
 import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
 import com.revature.domain.UserAccount;
-import com.revature.service.UserAccountDbSvcImpl;
+import com.revature.service.UserAccountDAO;
 
-public class MainMenuEmployee extends MainMenuClient {
+public class EmployeeMenu extends ClientMenu {
 
 	private static Scanner keyboard;
-	private static Logger logger = Logger.getLogger(MainMenuEmployee.class);
+	private static Logger logger = Logger.getLogger(EmployeeMenu.class);
 	private UserAccount user;
 	protected static DecimalFormat df = new DecimalFormat("0.00");
 
-	public MainMenuEmployee(UserAccount user) {
+	public EmployeeMenu(UserAccount user) {
 		super(user);
 		// TODO Auto-generated constructor stub
 		this.user = user;
@@ -107,10 +107,10 @@ public class MainMenuEmployee extends MainMenuClient {
 		keyboard = new Scanner(System.in);
 		int index = 0;
 		UserAccount user;
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		List<BankAccount> list = Bank.getAccounts();
 		if (list.size() == 0) {
-			System.out.println("No Bank Accounts in the System");
+			System.out.println("\nNo Bank Accounts in the System");
 			return null;
 		}
 		System.out.println();
@@ -143,6 +143,8 @@ public class MainMenuEmployee extends MainMenuClient {
 			System.out.println("Invalid Choice.");
 			displayEmployeeMenu();
 		}
+		if (choice == 0)
+			displayEmployeeMenu();
 		choice--;
 		return list.get(choice);
 	}
@@ -316,7 +318,7 @@ public class MainMenuEmployee extends MainMenuClient {
 		AccountRequest.Request request = requests.get(choice);
 		System.out.println("\nClient Information:");
 		List<UserAccount> accounts = new ArrayList<UserAccount>();
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		for (String ss : request.getUserSSNumbers()) {
 			if (!ss.equals("0"))
 				accounts.add(impl.getBySs(ss));

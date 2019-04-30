@@ -1,13 +1,21 @@
+FATAL [main]: Unable to open database
+FATAL: password authentication failed for user "sweinhart"
 INFO  [main]: Initializing Bank
 INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: Transactions retrieved successfully
-INFO  [main]: Transactions retrieved successfully
 INFO  [main]: BankAccounts retrieved successfully
 INFO  [main]: Transactions retrieved successfully
+INFO  [main]: Transactions retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount (ssNumber) retrieval Failed
-ResultSet closed
 INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: Transactions retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Transactions retrieved successfully
 INFO  [main]: Transactions retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
@@ -22,8 +30,32 @@ INFO  [main]: Login Completed
 INFO  [main]: Logged in User with access level 3
 INFO  [main]: Starting Employee Inital Menu
 INFO  [main]: Starting Admin Menu
-INFO  [main]: Starting Client Account Selection Menu
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Bank Account Details
+INFO  [main]: View Account History Started
+INFO  [main]: View History Completed
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Admin Operations
 INFO  [main]: Starting Admin Menu
 INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Bank Account Details
+INFO  [main]: View Account History Started
+INFO  [main]: View History Completed
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Admin Operations
+INFO  [main]: Starting Admin Menu
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Bank Account Details
+INFO  [main]: View Account History Started
+INFO  [main]: View History Completed
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Admin Operations

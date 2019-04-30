@@ -6,10 +6,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-import com.revature.service.AccountRequestDbSvcImpl;
-import com.revature.service.BankAccountDbSvcImpl;
-import com.revature.service.TransactionDbSvcImpl;
-import com.revature.service.UserAccountDbSvcImpl;
+import com.revature.service.AccountRequestDAO;
+import com.revature.service.BankAccountDAO;
+import com.revature.service.TransactionDAO;
+import com.revature.service.UserAccountDAO;
 
 public class Bank {
 	static Logger logger = Logger.getLogger(Bank.class);
@@ -20,14 +20,15 @@ public class Bank {
 	private static List<AccountRequest.Request> accountRequests = new ArrayList<AccountRequest.Request>();
 	private static List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 	private static Scanner keyboard;
+	private static States states = new States();
 
 	public static void initializeBank() {
 		// TODO Auto-generated constructor stub
 		logger.info("Initializing Bank");
-		AccountRequestDbSvcImpl requestImpl = AccountRequestDbSvcImpl.getInstance();
-		BankAccountDbSvcImpl accountImpl = BankAccountDbSvcImpl.getInstance();
-		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
-		UserAccountDbSvcImpl userImpl = UserAccountDbSvcImpl.getInstance();
+		AccountRequestDAO requestImpl = AccountRequestDAO.getConnection();
+		BankAccountDAO accountImpl = BankAccountDAO.getConnection();
+		TransactionDAO transImpl = TransactionDAO.getConnection();
+		UserAccountDAO userImpl = UserAccountDAO.getConnection();
 		accountRequests = requestImpl.getAll();
 		UserAccount userAccount = new UserAccount();
 		for (AccountRequest.Request request : accountRequests) {
@@ -43,6 +44,9 @@ public class Bank {
 		bankAccounts = accountImpl.getAll();
 		int accountNumber = 10000000;
 		for (BankAccount account : bankAccounts) {
+			List<Transaction> transactions = transImpl.getAll(account.getAccountNumber());
+			for (Transaction transaction : transactions)
+				account.setBalance(account.getBalance() + transaction.getTransactionAmount());
 			account.setTransactions(transImpl.getAll(account.getAccountNumber()));
 			for (String ss : account.getAccountOwners()) {
 				userAccount = userImpl.getBySs(ss);
@@ -67,7 +71,7 @@ public class Bank {
 	}
 
 	public static List<AccountRequest.Request> getAccountRequests() {
-		AccountRequestDbSvcImpl impl = AccountRequestDbSvcImpl.getInstance();
+		AccountRequestDAO impl = AccountRequestDAO.getConnection();
 		accountRequests = impl.getAll();
 		Collections.sort(accountRequests);
 		return accountRequests;
@@ -75,12 +79,28 @@ public class Bank {
 
 	public static void addAccountRequest(AccountRequest.Request request) {
 		accountRequests.add(request);
-		AccountRequestDbSvcImpl impl = AccountRequestDbSvcImpl.getInstance();
+		AccountRequestDAO impl = AccountRequestDAO.getConnection();
 		if (!impl.add(request)) {
 			System.out.println("Failed to Add Account Request. Exiting System.");
 			logger.info("Failed to Add Account Request to DB");
 			System.exit(1);
 		}
+	}
+	
+	public static void deleteAccount(BankAccount account) {
+		// TODO Auto-generated method stub
+		bankAccounts.remove(account);
+		for (UserAccount user : userAccounts)
+			for (BankAccount acc : user.getAccounts()) {
+				if (acc.getAccountNumber().equals(account.getAccountNumber())) {
+					user.getAccounts().remove(account);
+					break;
+				}
+			}
+		TransactionDAO transImpl = TransactionDAO.getConnection();
+		transImpl.delete(account.getAccountNumber());
+		BankAccountDAO impl = BankAccountDAO.getConnection();
+		impl.delete(account);
 	}
 
 	public static String getBankName() {
@@ -126,7 +146,7 @@ public class Bank {
 		logger.info("Creating New User Account");
 		keyboard = new Scanner(System.in);
 		UserAccount account = new UserAccount();
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		Login login = new Login();
 		String firstName = "";
 		String lastName = "";
@@ -294,8 +314,11 @@ public class Bank {
 		account.setDlNumber(dlNumber);
 		account.setDlExp(dlExp);
 		account.setSocialSecurity(ssNumber);
-		if (impl.add(account))
+		if (impl.add(account)) {
 			logger.info("User Account Successfully Created");
+			account = impl.getBySs(account.getSocialSecurity());
+			Bank.getUserAccounts().add(account);
+		}
 		else {
 			logger.info("User Account Did Not Save");
 			System.exit(1);
@@ -350,7 +373,7 @@ public class Bank {
 		// TODO Auto-generated method stub
 		boolean valid = true;
 		String[] zipCode = zip.split("-");
-		if (zipCode.length >= 1) {
+		if (zipCode.length >= 1 && zipCode.length <= 2) {
 			if (!validateNumbersOnly(zipCode[0]) || zipCode[0].length() != 5)
 				valid = false;
 			if (zipCode.length == 2) {
@@ -367,7 +390,6 @@ public class Bank {
 	public static boolean validateState(String state) {
 		// TODO Auto-generated method stub
 		boolean valid = false;
-		States states = new States();
 		for (String s : states.getStateAbr()) {
 			if (s.equals(state))
 				valid = true;
@@ -399,7 +421,7 @@ public class Bank {
 
 	public static boolean validateUsername(String username) {
 		// TODO Auto-generated method stub
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		UserAccount temp = new UserAccount();
 		boolean valid = true;
 		if (username.length() < 5) {
@@ -420,7 +442,7 @@ public class Bank {
 
 	public static boolean validateSocialSecurity(String ssNumber) {
 		// TODO Auto-generated method stub
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		UserAccount temp = new UserAccount();
 		boolean ssExists = false;
 		boolean valid = true;
@@ -494,6 +516,8 @@ public class Bank {
 
 	public static boolean validateLettersOnly(String text) {
 		boolean valid = true;
+		if (text.contentEquals(""))
+			valid = false;
 		for (char c : text.toCharArray())
 			if (c < 65 || c > 90 && c < 97 || c > 122)
 				valid = false;
@@ -502,6 +526,8 @@ public class Bank {
 
 	public static boolean validateNumbersOnly(String text) {
 		boolean valid = true;
+		if (text.contentEquals(""))
+			valid = false;
 		for (char c : text.toCharArray())
 			if (c < 48 || c > 57)
 				valid = false;
@@ -510,6 +536,8 @@ public class Bank {
 
 	public static boolean validateLettersAndNumbersOnly(String text) {
 		boolean valid = true;
+		if (text.contentEquals(""))
+			valid = false;
 		for (char c : text.toCharArray())
 			if (c < 48 || c > 57 && c < 65 || c > 90 && c < 97 || c > 122)
 				valid = false;
@@ -548,29 +576,22 @@ public class Bank {
 	}
 
 	public static boolean validateEmail(String email) {
-		if (email.contains("@") && email.length() > 6
-				&& (email.endsWith(".com") || email.endsWith(".edu") || email.endsWith(".net") || email.endsWith(".org")
+		String [] emailArray = email.split("@");
+		if (emailArray.length != 2)
+			return false;
+		if (!validateLettersAndNumbersOnly(emailArray[0]))
+			return false;
+		String [] emailArray2 = emailArray[1].split("\\.");
+		if (!validateLettersAndNumbersOnly(emailArray2[0]))
+			return false;
+		if (emailArray2.length != 2)
+			return false;
+		if ((email.endsWith(".com") || email.endsWith(".edu") || email.endsWith(".net") || email.endsWith(".org")
 						|| email.endsWith(".mil") || email.endsWith(".gov")))
 			return true;
 		else {
 			System.out.println("Invalid Email Address.");
 			return false;
 		}
-	}
-
-	public static void deleteAccount(BankAccount account) {
-		// TODO Auto-generated method stub
-		bankAccounts.remove(account);
-		for (UserAccount user : userAccounts)
-			for (BankAccount acc : user.getAccounts()) {
-				if (acc.getAccountNumber().equals(account.getAccountNumber())) {
-					user.getAccounts().remove(account);
-					break;
-				}
-			}
-		TransactionDbSvcImpl transImpl = TransactionDbSvcImpl.getInstance();
-		transImpl.delete(account.getAccountNumber());
-		BankAccountDbSvcImpl impl = BankAccountDbSvcImpl.getInstance();
-		impl.delete(account);
 	}
 }

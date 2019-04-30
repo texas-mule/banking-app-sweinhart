@@ -3,7 +3,7 @@ package com.revature.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.revature.service.AccountRequestDbSvcImpl;
+import com.revature.service.AccountRequestDAO;
 
 public class UserAccount implements Comparable<UserAccount>{
 	private Integer id;
@@ -35,7 +35,7 @@ public class UserAccount implements Comparable<UserAccount>{
 
 	public AccountRequest getPendingRequests() {
 		if (this.getId() != null) {
-			AccountRequestDbSvcImpl impl = AccountRequestDbSvcImpl.getInstance();
+			AccountRequestDAO impl = AccountRequestDAO.getConnection();
 			List<AccountRequest.Request> requests = impl.getAll();
 			AccountRequest userRequests = new AccountRequest();
 			for (AccountRequest.Request request : requests) {

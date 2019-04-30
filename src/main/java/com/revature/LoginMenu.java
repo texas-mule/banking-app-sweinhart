@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import com.revature.domain.Bank;
 import com.revature.domain.Login;
 import com.revature.domain.UserAccount;
-import com.revature.service.UserAccountDbSvcImpl;
+import com.revature.service.UserAccountDAO;
 
 public class LoginMenu {
 	private static Scanner keyboard;
@@ -65,15 +65,15 @@ public class LoginMenu {
 		}
 		switch (user.getAccessLvl()) {
 		case 1:
-			MainMenuClient clientMenu = new MainMenuClient(user);
+			ClientMenu clientMenu = new ClientMenu(user);
 			clientMenu.displayMainMenu();
 			break;
 		case 2:
-			MainMenuEmployee emplMenu = new MainMenuEmployee(user);
+			EmployeeMenu emplMenu = new EmployeeMenu(user);
 			emplMenu.displayMainMenu();
 			break;
 		case 3:
-			MainMenuAdmin adminMenu = new MainMenuAdmin(user);
+			AdminMenu adminMenu = new AdminMenu(user);
 			adminMenu.displayMainMenu();
 			break;
 		default:
@@ -101,7 +101,7 @@ public class LoginMenu {
 		username = keyboard.nextLine();
 		System.out.print("Password: ");
 		password = keyboard.nextLine();
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		account = impl.getByUsername(username);
 		int accessLvl = 0;
 		if (account.getId() == null) {

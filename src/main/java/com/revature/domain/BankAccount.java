@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.revature.service.TransactionDbSvcImpl;
-
 public class BankAccount implements Comparable<BankAccount>{
 	private Integer id;
 	private Integer accountNumber;
@@ -14,6 +12,11 @@ public class BankAccount implements Comparable<BankAccount>{
 	private List<String> accountOwnerSSnumbers = new ArrayList<String>();
 	private List<Transaction> transactions = new ArrayList<Transaction>();
 	
+
+	public BankAccount() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 	public List<Transaction> getTransactions() {
 		Collections.sort(transactions);
 		return transactions;
@@ -22,6 +25,7 @@ public class BankAccount implements Comparable<BankAccount>{
 		this.transactions = transactions;
 	}
 	public void addTransaction(Transaction transaction) {
+		balance += transaction.getTransactionAmount();
 		this.transactions.add(transaction);
 	}
 	public Integer getId() {
@@ -44,11 +48,6 @@ public class BankAccount implements Comparable<BankAccount>{
 	}
 
 	public Double getBalance() {
-		balance = 0.0;
-		TransactionDbSvcImpl impl = TransactionDbSvcImpl.getInstance();
-		transactions = impl.getAll(accountNumber);
-		for (Transaction transaction : transactions)
-			balance += transaction.getTransactionAmount();
 		return balance;
 	}
 	public void setBalance(Double balance) {

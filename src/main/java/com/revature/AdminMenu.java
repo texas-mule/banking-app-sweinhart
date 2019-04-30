@@ -5,23 +5,22 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-
 import com.revature.domain.AccountRequest;
 import com.revature.domain.Bank;
 import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
 import com.revature.domain.UserAccount;
-import com.revature.service.AccountRequestDbSvcImpl;
-import com.revature.service.BankAccountDbSvcImpl;
-import com.revature.service.UserAccountDbSvcImpl;
+import com.revature.service.AccountRequestDAO;
+import com.revature.service.BankAccountDAO;
+import com.revature.service.UserAccountDAO;
 
-public class MainMenuAdmin extends MainMenuEmployee {
+public class AdminMenu extends EmployeeMenu {
 
 	private static Scanner keyboard;
-	private static Logger logger = Logger.getLogger(MainMenuAdmin.class);
+	private static Logger logger = Logger.getLogger(AdminMenu.class);
 	private UserAccount user;
 
-	public MainMenuAdmin(UserAccount user) {
+	public AdminMenu(UserAccount user) {
 		super(user);
 		// TODO Auto-generated constructor stub
 		this.user = user;
@@ -102,7 +101,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 				String ss = account.getAccountOwners().get(0);
 				if (ss.equals("0"))
 					ss = account.getAccountOwners().get(1);
-				UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+				UserAccountDAO impl = UserAccountDAO.getConnection();
 				user = impl.getBySs(ss);
 				displayAdminOperations(user, account);
 			}
@@ -128,7 +127,11 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			System.out.println("3 - Account Funds Transfer");
 		}
 		System.out.println("4 - Close Customer Account");
-		if (account.getAccountOwners().size() == 2) {
+		int numAccounts = 0;
+		for (String ss : account.getAccountOwners())
+			if (!ss.equals("0"))
+				numAccounts++;
+		if (numAccounts > 1) {
 			System.out.println("5 - Remove Owner from Account");
 		}
 		System.out.println("9 - Return to Employee Menu");
@@ -142,10 +145,10 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		}
 		switch (choice) {
 		case 1:
-			BankTransactions.makeDeposit(user, account);
+			BankTransactions.makeDeposit(this.user, account);
 			break;
 		case 2:
-			BankTransactions.makeWithdrawl(user, account);
+			BankTransactions.makeWithdrawl(this.user, account);
 			break;
 		case 3:
 			if (Bank.getAccounts().size() < 2) {
@@ -159,7 +162,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 				BankTransactions.transferFunds(this.user, fromAccount, toAccount);
 			break;
 		case 4:
-			BankTransactions.closeAccount(user, account);
+			closeAccount(account);
 			break;
 		case 5:
 			removeAccountOwner(account);
@@ -174,10 +177,34 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		displayEmployeeMenu();
 	}
 
+	private void closeAccount(BankAccount account) {
+		// TODO Auto-generated method stub
+		keyboard = new Scanner(System.in);
+		System.out.println("\nConfirm Close " + account.getAccountType() 
+			+ " Account " + account.getAccountNumber() + "?");
+		System.out.println("1 - Yes");
+		System.out.println("2 - No");
+		System.out.print("Choice? ");
+		int choice;
+		try {
+			choice = keyboard.nextInt();
+		} catch (InputMismatchException e) {
+			logger.info("Handling Input Mismatch Exception");
+			choice = 0;
+		}
+		if (choice < 1 || choice > 2) {
+			System.out.println("Invalid Input");
+			displayEmployeeMenu();
+		}
+		if (choice == 2)
+			displayEmployeeMenu();
+		BankTransactions.closeAccount(this.user, account);
+	}
+
 	private void removeAccountOwner(BankAccount account) {
 		// TODO Auto-generated method stub
 		keyboard = new Scanner(System.in);
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		List<UserAccount> users = new ArrayList<UserAccount>();
 		int index = 0;
 		System.out.println();
@@ -248,7 +275,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 				valid = validateSocialSecurity(ssNumber);
 		} while (!valid);
 		UserAccount account = new UserAccount();
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		account = impl.getBySs(ssNumber);
 		if (account.getId() == null) {
 			System.out.println("Employee is not registered in the system.");
@@ -353,11 +380,33 @@ public class MainMenuAdmin extends MainMenuEmployee {
 		// TODO Auto-generated method stub
 		logger.info("Delete user Account");
 		keyboard = new Scanner(System.in);
-		System.out.println("\nWARNING: Deleting User Accounts will remove all associated Bank Accounts");
-		System.out.println("Confirm Delete of User: " + user.getLastName() + ", " + user.getFirstName());
+		boolean exists = false;
+		for (AccountRequest.Request request : Bank.getAccountRequests()) {
+			for (String ss : request.getUserSSNumbers()) {
+				if (ss.equals(user.getSocialSecurity()))
+					exists = true;
+			}
+		}
+		if (exists) {
+			System.out.println("\nUser is associated with a current account request.");
+			System.out.println("Cannot Delete User Account");
+			displayEmployeeMenu();
+		}
+		for (BankAccount account : Bank.getAccounts()) {
+			for (String ss : account.getAccountOwners()) {
+				if (ss.equals(user.getSocialSecurity()))
+					exists = true;
+			}
+		}
+		if (exists) {
+			System.out.println("\nUser is associated with a current bank account.");
+			System.out.println("Cannot Delete User Account");
+			displayEmployeeMenu();
+		}
+		System.out.println("\nConfirm Delete of User: " + user.getLastName() + ", " + user.getFirstName());
 		System.out.println("1 - Yes");
 		System.out.println("2 - No");
-		System.out.println("Choice? ");
+		System.out.print("Choice? ");
 		int choice;
 		try {
 			choice = keyboard.nextInt();
@@ -365,32 +414,25 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			logger.info("Handling Input Mismatch Exception");
 			choice = 0;
 		}
-		switch (choice) {
-		case 1: {
-			for (BankAccount account : user.getAccounts()) {
-				BankTransactions.closeAccount(user, account);
-			}
-			UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
-			impl.delete(user);
-		}
-			if (user.equals(this.user)) {
-				LoginMenu login = new LoginMenu();
-				login.displayMenu();
-			}
-			break;
-		case 2:
+		if (choice < 1 || choice > 2) {
+			System.out.println("Invalid Input");
 			displayEmployeeMenu();
-			break;
-		default:
-			deleteUserAccount(user);
-			break;
 		}
-
+		if (choice == 2)
+			displayEmployeeMenu();
+		if (user.getId() == this.user.getId()) {
+			System.out.println("Cannot Delete Your Own Account");
+			displayEmployeeMenu();
+		}
+		UserAccountDAO impl = UserAccountDAO.getConnection();
+		impl.delete(user);
+		Bank.getUserAccounts().remove(user);
+		System.out.println("User Account has been Deleted");
 	}
 
 	private void editUserAccount(UserAccount user) {
 		// TODO Auto-generated method stub
-		UserAccountDbSvcImpl impl = UserAccountDbSvcImpl.getInstance();
+		UserAccountDAO impl = UserAccountDAO.getConnection();
 		logger.info("Update User Account");
 		keyboard = new Scanner(System.in);
 		System.out.println("\nEdit User Account");
@@ -565,6 +607,10 @@ public class MainMenuAdmin extends MainMenuEmployee {
 			String ssNumber = keyboard.nextLine();
 			ssNumber = ssNumber.trim();
 			boolean valid = true;
+			if (ssNumber.equals(user.getSocialSecurity())) {
+				valid = true;
+				break;
+			}
 			if (ssNumber.length() < 8)
 				valid = false;
 			if (valid && !ssNumber.contains("-"))
@@ -594,7 +640,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 
 	private void modifyRequests(String oldSSNumber, String newSSNumber) {
 		// TODO Auto-generated method stub
-		AccountRequestDbSvcImpl reqImpl = AccountRequestDbSvcImpl.getInstance();
+		AccountRequestDAO reqImpl = AccountRequestDAO.getConnection();
 		List<AccountRequest.Request> requests = Bank.getAccountRequests();
 		boolean modify = false;
 		for (AccountRequest.Request request : requests) {
@@ -612,7 +658,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 	
 	private void modifyAccounts(String oldSSNumber, String newSSNumber) {
 		// TODO Auto-generated method stub
-		BankAccountDbSvcImpl bankImpl = BankAccountDbSvcImpl.getInstance();
+		BankAccountDAO bankImpl = BankAccountDAO.getConnection();
 		boolean modify = false;
 		for (BankAccount account : Bank.getAccounts()) {
 			for (String ss : account.getAccountOwners()) {
@@ -629,7 +675,7 @@ public class MainMenuAdmin extends MainMenuEmployee {
 	
 	private void modifyAccount(BankAccount account, String oldSSNumber, String newSSNumber) {
 		// TODO Auto-generated method stub
-		BankAccountDbSvcImpl bankImpl = BankAccountDbSvcImpl.getInstance();
+		BankAccountDAO bankImpl = BankAccountDAO.getConnection();
 		for (BankAccount acc : Bank.getAccounts()) {
 			if (acc.getAccountNumber().equals(account.getAccountNumber())) {
 				acc.getAccountOwners().remove(oldSSNumber);
