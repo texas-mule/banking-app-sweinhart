@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.revature.domain.AccountRequest.Request;
+import com.revature.domain.AccountRequests.Request;
 import com.revature.service.AccountRequestDAO;
 
 public class BankTest {
@@ -26,7 +26,7 @@ public class BankTest {
 		int expectedResultInt = 10000000;
 		int resultInt = Bank.getNextAccountNumber();
 		assertEquals(expectedResultInt, resultInt);
-		AccountRequest accountRequest = new AccountRequest();
+		AccountRequests accountRequest = new AccountRequests();
 		Request testRequest = accountRequest.new Request();		
 		testRequest.addUserSSNumber("123-45-6789");
 		testRequest.setAccountType("Test");
@@ -47,7 +47,9 @@ public class BankTest {
 		testUserAccounts.add(testUserAccount);
 		Bank.setUserAccounts(testUserAccounts);
 		UserAccount testUserAccount1 = Bank.getUserAccounts().get(0);
-		assertEquals(testUserAccount, testUserAccount1);		
+		assertEquals(testUserAccount, testUserAccount1);
+		testBankAccount = Bank.assignAccountNumber(testBankAccount);
+		assertEquals(Bank.getNextAccountNumber(), testBankAccount.getAccountNumber());
 	}
 	
 	@Test
@@ -208,11 +210,12 @@ public class BankTest {
 		for (int i = 0; i < 255; i++) {
 			c = (char) i;
 			if (c < 65 || c > 90 && c < 97 || c > 122)
-				assertFalse(Bank.validateLettersOnly(c.toString()));
+				assertFalse(Bank.validateLettersOnly(c.toString(), false));
 			else
-				assertTrue(Bank.validateLettersOnly(c.toString()));
+				assertTrue(Bank.validateLettersOnly(c.toString(), false));
 		}
-		assertFalse(Bank.validateLettersOnly(""));
+		assertFalse(Bank.validateLettersOnly("", false));
+		assertTrue(Bank.validateLettersOnly("", true));
 	}
 	
 	@Test
@@ -234,11 +237,12 @@ public class BankTest {
 		for (int i = 0; i < 255; i++) {
 			c = (char) i;
 			if (c < 48 || c > 57 && c < 65 || c > 90 && c < 97 || c > 122)
-				assertFalse(Bank.validateLettersAndNumbersOnly(c.toString()));
+				assertFalse(Bank.validateLettersAndNumbersOnly(c.toString(), false));
 			else
-				assertTrue(Bank.validateLettersAndNumbersOnly(c.toString()));
+				assertTrue(Bank.validateLettersAndNumbersOnly(c.toString(), false));
 		}
-		assertFalse(Bank.validateLettersAndNumbersOnly(""));
+		assertFalse(Bank.validateLettersAndNumbersOnly("", false));
+		assertTrue(Bank.validateLettersAndNumbersOnly("", true));
 	}
 	
 	@Test

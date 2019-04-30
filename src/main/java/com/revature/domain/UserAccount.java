@@ -23,7 +23,7 @@ public class UserAccount implements Comparable<UserAccount>{
 	private String dlNumber;
 	private String dlExp;
 	private List<BankAccount> accounts = new ArrayList<BankAccount>();
-	private AccountRequest pendingRequests = new AccountRequest();
+	private AccountRequests pendingRequests = new AccountRequests();
 
 	public Integer getAccessLvl() {
 		return accessLvl;
@@ -33,12 +33,12 @@ public class UserAccount implements Comparable<UserAccount>{
 		this.accessLvl = accessLvl;
 	}
 
-	public AccountRequest getPendingRequests() {
+	public AccountRequests getPendingRequests() {
 		if (this.getId() != null) {
 			AccountRequestDAO impl = AccountRequestDAO.getConnection();
-			List<AccountRequest.Request> requests = impl.getAll();
-			AccountRequest userRequests = new AccountRequest();
-			for (AccountRequest.Request request : requests) {
+			List<AccountRequests.Request> requests = impl.getAll();
+			AccountRequests userRequests = new AccountRequests();
+			for (AccountRequests.Request request : requests) {
 				for (String id : request.getUserSSNumbers()) {
 					if (id.equals(this.getSocialSecurity())) {
 						userRequests.addAccountRequest(request);
@@ -51,7 +51,7 @@ public class UserAccount implements Comparable<UserAccount>{
 
 	}
 
-	public void setPendingRequests(AccountRequest pendingRequests) {
+	public void setPendingRequests(AccountRequests pendingRequests) {
 		this.pendingRequests = pendingRequests;
 	}
 
@@ -143,7 +143,7 @@ public class UserAccount implements Comparable<UserAccount>{
 		this.state = state;
 	}
 
-	public String getZipcode() {
+	public String getZipCode() {
 		return zipcode;
 	}
 

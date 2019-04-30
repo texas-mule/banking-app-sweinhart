@@ -109,7 +109,7 @@ public final class BankAccountDAO implements BankAccountInterface {
 					bankAccount.setAccountNumber(rs.getInt("account_number"));
 					bankAccount.getAccountOwners().add(rs.getString("client1"));
 					String ssNum = rs.getString("client2");
-					if (!ssNum.equals(""))
+					if (!ssNum.equals("0"))
 						bankAccount.getAccountOwners().add(ssNum);
 					bankAccount.setBalance(bankAccount.getBalance());
 					list.add(bankAccount);
@@ -139,7 +139,7 @@ public final class BankAccountDAO implements BankAccountInterface {
 					bankAccount.setAccountNumber(rs.getInt("account_number"));
 					bankAccount.getAccountOwners().add(rs.getString("client1"));
 					String ssNum = rs.getString("client2");
-					if (!ssNum.equals(""))
+					if (!ssNum.equals("0"))
 						bankAccount.getAccountOwners().add(ssNum);
 					bankAccount.setBalance(bankAccount.getBalance());
 				}
@@ -168,7 +168,7 @@ public final class BankAccountDAO implements BankAccountInterface {
 					bankAccount.setAccountNumber(rs.getInt("account_number"));
 					bankAccount.getAccountOwners().add(rs.getString("client1"));
 					String ssNum = rs.getString("client2");
-					if (!ssNum.equals(""))
+					if (!ssNum.equals("0"))
 						bankAccount.getAccountOwners().add(ssNum);
 					bankAccount.setBalance(bankAccount.getBalance());
 					list.add(bankAccount);

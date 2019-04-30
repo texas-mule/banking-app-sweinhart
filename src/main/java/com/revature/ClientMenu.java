@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-import com.revature.domain.AccountRequest;
+import com.revature.domain.AccountRequests;
 import com.revature.domain.Bank;
 import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
@@ -219,7 +219,7 @@ public class ClientMenu {
 		String accountType = "";
 		if (user.getPendingRequests().getAccountRequests().size() > 0) {
 			System.out.println("\nCurrent Account Requests Not Yet Approved");
-			for (AccountRequest.Request request : user.getPendingRequests().getAccountRequests()) {
+			for (AccountRequests.Request request : user.getPendingRequests().getAccountRequests()) {
 				System.out.println("Date Requested: " + request.getDate() + "\tAccount Type: "
 						+ request.getAccountType() + "\tDeposit Ammount: $" + df.format(request.getDeposit()));
 			}
@@ -260,8 +260,8 @@ public class ClientMenu {
 			logger.info("Handling Input Mismatch Exception");
 			choice = 0;
 		}
-		AccountRequest userRequest = user.getPendingRequests();
-		AccountRequest.Request request = userRequest.new Request();
+		AccountRequests userRequest = user.getPendingRequests();
+		AccountRequests.Request request = userRequest.new Request();
 		UserAccountDAO impl = UserAccountDAO.getConnection();
 		switch (choice) {
 		case 1:
@@ -309,7 +309,7 @@ public class ClientMenu {
 			request.setDeposit(getDeposit(accountType));
 			userRequest.addAccountRequest(request);
 			user.setPendingRequests(userRequest);
-			AccountRequest jointUserRequest = jointUser.getPendingRequests();
+			AccountRequests jointUserRequest = jointUser.getPendingRequests();
 			jointUserRequest.addAccountRequest(request);
 			jointUser.setPendingRequests(jointUserRequest);
 			Bank.addAccountRequest(request);

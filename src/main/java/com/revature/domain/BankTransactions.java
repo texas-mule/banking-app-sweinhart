@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import com.revature.AdminMenu;
 import com.revature.ClientMenu;
 import com.revature.EmployeeMenu;
-import com.revature.domain.AccountRequest.Request;
+import com.revature.domain.AccountRequests.Request;
 import com.revature.service.AccountRequestDAO;
 import com.revature.service.BankAccountDAO;
 import com.revature.service.TransactionDAO;
@@ -256,7 +256,6 @@ public class BankTransactions {
 			transImpl.add(transaction);
 			BankAccountDAO impl = BankAccountDAO.getConnection();
 			impl.add(newAccount);
-			newAccount = impl.getAccount(newAccount.getAccountNumber());
 			newAccount = impl.getAccount(newAccount.getAccountNumber());
 			newAccount.addTransaction(transaction);
 			Bank.getAccounts().add(newAccount);

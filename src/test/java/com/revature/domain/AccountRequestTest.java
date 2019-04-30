@@ -1,12 +1,9 @@
 package com.revature.domain;
 
 import static org.junit.Assert.assertEquals;
-
 import java.util.Date;
-
 import org.junit.Test;
-
-import com.revature.domain.AccountRequest.Request;
+import com.revature.domain.AccountRequests.Request;
 
 public class AccountRequestTest {
 	@Test
@@ -19,10 +16,11 @@ public class AccountRequestTest {
 		int year = Integer.valueOf(dateStringArray[5]);
 		String date = month + "/" + day + "/" + year;
 		String time = dateStringArray[3];
-		AccountRequest accountRequest = new AccountRequest();
+		AccountRequests accountRequest = new AccountRequests();
 		Request testRequest = accountRequest.new Request();
 		String ss = "123-45-6789";
 		String type = "checking";
+		testRequest.setId(1);
 		testRequest.addUserSSNumber(ss);
 		testRequest.setAccountType(type);
 		testRequest.setDeposit(1.0);

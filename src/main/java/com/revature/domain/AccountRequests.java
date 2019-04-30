@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class AccountRequest {
+public class AccountRequests {
 	public String checking = "Checking";
 	public String saving = "Savings";
 	private List<Request> accountRequests = new ArrayList<Request>();		
@@ -76,7 +76,7 @@ public class AccountRequest {
 		public void setDeposit(Double deposit) {
 			this.deposit = deposit;
 		}
-		public void setDateInstance() {
+		private void setDateInstance() {
 			dateInstance = new Date();
 			String dateString = dateInstance.toString();
 			String[] dateStringArray = dateString.toString().split(" ");

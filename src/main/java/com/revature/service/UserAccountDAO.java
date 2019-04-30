@@ -38,7 +38,7 @@ public final class UserAccountDAO implements UserAccountInterface{
 	            pstmt.setString(6, account.getAddress2());
 	            pstmt.setString(7, account.getCity());
 	            pstmt.setString(8, account.getState());
-	            pstmt.setString(9, account.getZipcode());
+	            pstmt.setString(9, account.getZipCode());
 	            pstmt.setString(10, account.getPhone());
 	            pstmt.setString(11, account.getEmail());
 	            pstmt.setString(12, account.getSocialSecurity());
@@ -94,7 +94,7 @@ public final class UserAccountDAO implements UserAccountInterface{
                 pstmt.setString(6, account.getAddress2());
                 pstmt.setString(7, account.getCity());
                 pstmt.setString(8, account.getState());
-                pstmt.setString(9, account.getZipcode());
+                pstmt.setString(9, account.getZipCode());
                 pstmt.setString(10, account.getPhone());
                 pstmt.setString(11, account.getEmail());
                 pstmt.setString(12, account.getSocialSecurity());

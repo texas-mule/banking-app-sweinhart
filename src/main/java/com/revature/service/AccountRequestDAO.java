@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.sql.ResultSet;
-import com.revature.domain.AccountRequest;
-import com.revature.domain.AccountRequest.Request;
+import com.revature.domain.AccountRequests;
+import com.revature.domain.AccountRequests.Request;
 import org.apache.log4j.Logger;
 
 public class AccountRequestDAO implements AccountRequestInterface {
@@ -79,7 +79,7 @@ public class AccountRequestDAO implements AccountRequestInterface {
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 				ResultSet rs = pstmt.executeQuery();
 				while (rs.next()) {
-					AccountRequest accountRequest = new AccountRequest();
+					AccountRequests accountRequest = new AccountRequests();
 					Request request = accountRequest.new Request();
 					request.setId(rs.getInt("id"));
 					request.setAccountType(rs.getString("account_type"));

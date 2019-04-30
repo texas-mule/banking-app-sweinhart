@@ -17,7 +17,7 @@ public class Bank {
 	private static final Integer routingNumber = 123456789;
 	private static Integer nextAccountNumber = 10000000;
 	private static List<UserAccount> userAccounts = new ArrayList<UserAccount>();
-	private static List<AccountRequest.Request> accountRequests = new ArrayList<AccountRequest.Request>();
+	private static List<AccountRequests.Request> accountRequests = new ArrayList<AccountRequests.Request>();
 	private static List<BankAccount> bankAccounts = new ArrayList<BankAccount>();
 	private static Scanner keyboard;
 	private static States states = new States();
@@ -31,10 +31,10 @@ public class Bank {
 		UserAccountDAO userImpl = UserAccountDAO.getConnection();
 		accountRequests = requestImpl.getAll();
 		UserAccount userAccount = new UserAccount();
-		for (AccountRequest.Request request : accountRequests) {
+		for (AccountRequests.Request request : accountRequests) {
 			for (String id : request.getUserSSNumbers()) {
 				userAccount = userImpl.getBySs(id);
-				AccountRequest userRequest = new AccountRequest();
+				AccountRequests userRequest = new AccountRequests();
 				userRequest = userAccount.getPendingRequests();
 				userRequest.addAccountRequest(request);
 				userAccount.setPendingRequests(userRequest);
@@ -70,14 +70,14 @@ public class Bank {
 		}
 	}
 
-	public static List<AccountRequest.Request> getAccountRequests() {
+	public static List<AccountRequests.Request> getAccountRequests() {
 		AccountRequestDAO impl = AccountRequestDAO.getConnection();
 		accountRequests = impl.getAll();
 		Collections.sort(accountRequests);
 		return accountRequests;
 	}
 
-	public static void addAccountRequest(AccountRequest.Request request) {
+	public static void addAccountRequest(AccountRequests.Request request) {
 		accountRequests.add(request);
 		AccountRequestDAO impl = AccountRequestDAO.getConnection();
 		if (!impl.add(request)) {
@@ -220,7 +220,7 @@ public class Bank {
 			System.out.print("Enter Address2: ");
 			address2 = keyboard.nextLine();
 			address2 = address2.trim();
-			valid = validateLettersAndNumbersOnly(address2);
+			valid = validateLettersAndNumbersOnly(address2, true);
 			if (!valid)
 				System.out.println("Only Letters and Numbers are allowed");
 		} while (!valid);
@@ -329,7 +329,7 @@ public class Bank {
 	public static boolean validateLicenseNumber(String dlNumber) {
 		// TODO Auto-generated method stub
 		boolean valid = true;
-		if (dlNumber.length() < 4 || !validateLettersAndNumbersOnly(dlNumber)) {
+		if (dlNumber.length() < 4 || !validateLettersAndNumbersOnly(dlNumber, false)) {
 			System.out.println("Invalid Driver License Number.");
 			valid = false;
 		}
@@ -402,7 +402,7 @@ public class Bank {
 	public static boolean validateCity(String city) {
 		// TODO Auto-generated method stub
 		boolean valid = true;
-		if (city.length() < 2 || !validateLettersOnly(city)) {
+		if (city.length() < 2 || !validateLettersOnly(city, false)) {
 			System.out.println("Invalid City.");
 			valid = false;
 		}
@@ -412,7 +412,7 @@ public class Bank {
 	public static boolean validateName(String name) {
 		// TODO Auto-generated method stub
 		boolean valid = true;
-		if (name.length() < 2 || !validateLettersOnly(name)) {
+		if (name.length() < 2 || !validateLettersOnly(name, false)) {
 			System.out.println("Invalid Name.");
 			valid = false;
 		}
@@ -428,7 +428,7 @@ public class Bank {
 			System.out.println("Username must be at least 5 characters.");
 			valid = false;
 		}
-		if (!validateLettersAndNumbersOnly(username)) {
+		if (!validateLettersAndNumbersOnly(username, false)) {
 			System.out.println("Username may not contain special characters.");
 			valid = false;
 		}
@@ -505,7 +505,7 @@ public class Bank {
 		if (!validateNumbersOnly(temp[0]))
 			return false;
 		for (int i = 1; i < temp.length; i++) {
-			valid = validateLettersOnly(temp[i]);
+			valid = validateLettersOnly(temp[i], false);
 			if (!valid) {
 				System.out.println("Invalid Address. Include Apt/Suite numbers in Address2.");
 				return false;
@@ -514,9 +514,9 @@ public class Bank {
 		return valid;
 	}
 
-	public static boolean validateLettersOnly(String text) {
+	public static boolean validateLettersOnly(String text, boolean nullAllowed) {
 		boolean valid = true;
-		if (text.contentEquals(""))
+		if (!nullAllowed && text.contentEquals(""))
 			valid = false;
 		for (char c : text.toCharArray())
 			if (c < 65 || c > 90 && c < 97 || c > 122)
@@ -534,9 +534,9 @@ public class Bank {
 		return valid;
 	}
 
-	public static boolean validateLettersAndNumbersOnly(String text) {
+	public static boolean validateLettersAndNumbersOnly(String text, boolean nullAllowed) {
 		boolean valid = true;
-		if (text.contentEquals(""))
+		if (!nullAllowed && text.contentEquals(""))
 			valid = false;
 		for (char c : text.toCharArray())
 			if (c < 48 || c > 57 && c < 65 || c > 90 && c < 97 || c > 122)
@@ -579,10 +579,10 @@ public class Bank {
 		String [] emailArray = email.split("@");
 		if (emailArray.length != 2)
 			return false;
-		if (!validateLettersAndNumbersOnly(emailArray[0]))
+		if (!validateLettersAndNumbersOnly(emailArray[0], false))
 			return false;
 		String [] emailArray2 = emailArray[1].split("\\.");
-		if (!validateLettersAndNumbersOnly(emailArray2[0]))
+		if (!validateLettersAndNumbersOnly(emailArray2[0], false))
 			return false;
 		if (emailArray2.length != 2)
 			return false;

@@ -49,15 +49,18 @@ public class TransactionDAO implements TransactionInterface{
 
 	public boolean delete(Integer accountNumber) {
 		// TODO Auto-generated method stub
-		String sql = "DELETE FROM transactions WHERE account_number = ?";
+		List<Transaction> list = getAll(accountNumber);		
 		try (Connection conn = DriverManager.getConnection(url, username, password)) {
-			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-				pstmt.setInt(1, accountNumber);
-				pstmt.executeUpdate();
-			} catch (SQLException e) {
-				logger.fatal("Transaction deletion Failed\n" + e.getMessage());
-				System.exit(1);
-			}
+			for (Transaction transaction : list) {
+				String sql = "DELETE FROM transactions WHERE id = ?";
+				try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+					pstmt.setInt(1, transaction.getId());
+					pstmt.executeUpdate();
+				} catch (SQLException e) {
+					logger.fatal("Transaction deletion Failed\n" + e.getMessage());
+					System.exit(1);
+				}
+			}			
 			conn.close();
 		} catch (SQLException ex) {
 			logger.fatal("Unable to open database\n" + ex.getMessage());
@@ -73,6 +76,10 @@ public class TransactionDAO implements TransactionInterface{
 				+ "FROM transactions WHERE account_number = ?";
 		try (Connection conn = DriverManager.getConnection(url, username, password)) {
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				if (accountNumber == null) {
+					conn.close();
+					return list;
+				}
 				pstmt.setInt(1, accountNumber);
 				ResultSet rs = pstmt.executeQuery();
 				while (rs.next()) {

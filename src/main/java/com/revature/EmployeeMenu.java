@@ -7,7 +7,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-import com.revature.domain.AccountRequest;
+import com.revature.domain.AccountRequests;
 import com.revature.domain.Bank;
 import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
@@ -239,7 +239,7 @@ public class EmployeeMenu extends ClientMenu {
 		System.out.print(account.getAddress1() + " " + account.getAddress2());
 		System.out.print("\t\t\t");
 		System.out.println();
-		System.out.print(account.getCity() + ", " + account.getState() + " " + account.getZipcode());
+		System.out.print(account.getCity() + ", " + account.getState() + " " + account.getZipCode());
 		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getPhone());
@@ -268,11 +268,11 @@ public class EmployeeMenu extends ClientMenu {
 		// TODO Auto-generated method stub
 		logger.info("Starting Client Account Requests View");
 		keyboard = new Scanner(System.in);
-		List<AccountRequest.Request> openRequests = Bank.getAccountRequests();
+		List<AccountRequests.Request> openRequests = Bank.getAccountRequests();
 		// Cannot approve your own requests
-		List<AccountRequest.Request> requests = new ArrayList<AccountRequest.Request>();
+		List<AccountRequests.Request> requests = new ArrayList<AccountRequests.Request>();
 		boolean valid = true;
-		for (AccountRequest.Request request : openRequests) {
+		for (AccountRequests.Request request : openRequests) {
 			for (String ss : request.getUserSSNumbers()) {
 				if (ss.equals(this.user.getSocialSecurity()))
 					valid = false;
@@ -288,7 +288,7 @@ public class EmployeeMenu extends ClientMenu {
 		System.out.println("\nCurrent Open Requests");
 		int index = 0;
 		int choice = 0;
-		for (AccountRequest.Request request : requests) {
+		for (AccountRequests.Request request : requests) {
 			index++;
 			boolean joint = true;
 			for (String ss : request.getUserSSNumbers())
@@ -315,7 +315,7 @@ public class EmployeeMenu extends ClientMenu {
 			displayOpenRequests();
 		}
 		choice--;
-		AccountRequest.Request request = requests.get(choice);
+		AccountRequests.Request request = requests.get(choice);
 		System.out.println("\nClient Information:");
 		List<UserAccount> accounts = new ArrayList<UserAccount>();
 		UserAccountDAO impl = UserAccountDAO.getConnection();
@@ -336,7 +336,7 @@ public class EmployeeMenu extends ClientMenu {
 		System.out.println();
 		for (int i = 0; i < accounts.size(); i++) {
 			System.out.print(
-					accounts.get(i).getCity() + ", " + accounts.get(i).getState() + " " + accounts.get(i).getZipcode());
+					accounts.get(i).getCity() + ", " + accounts.get(i).getState() + " " + accounts.get(i).getZipCode());
 			System.out.print("\t\t\t");
 		}
 		System.out.println();

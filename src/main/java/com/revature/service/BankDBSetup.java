@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 public class BankDBSetup {
 	private static final String url = "jdbc:postgresql://localhost:5432/postgres";
 	private static final String username = "sweinhart";
-	private static final String password = "82002Sdw!";
+	private static final String password = "Password";
 	private static Logger logger = Logger.getLogger(BankDBSetup.class);
 	static Connection connection;
 

@@ -5,7 +5,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.log4j.Logger;
-import com.revature.domain.AccountRequest;
+import com.revature.domain.AccountRequests;
 import com.revature.domain.Bank;
 import com.revature.domain.BankAccount;
 import com.revature.domain.BankTransactions;
@@ -321,7 +321,7 @@ public class AdminMenu extends EmployeeMenu {
 		System.out.print(account.getAddress1() + " " + account.getAddress2());
 		System.out.print("\t\t\t");
 		System.out.println();
-		System.out.print(account.getCity() + ", " + account.getState() + " " + account.getZipcode());
+		System.out.print(account.getCity() + ", " + account.getState() + " " + account.getZipCode());
 		System.out.print("\t\t\t");
 		System.out.println();
 		System.out.print(account.getPhone());
@@ -381,7 +381,7 @@ public class AdminMenu extends EmployeeMenu {
 		logger.info("Delete user Account");
 		keyboard = new Scanner(System.in);
 		boolean exists = false;
-		for (AccountRequest.Request request : Bank.getAccountRequests()) {
+		for (AccountRequests.Request request : Bank.getAccountRequests()) {
 			for (String ss : request.getUserSSNumbers()) {
 				if (ss.equals(user.getSocialSecurity()))
 					exists = true;
@@ -515,7 +515,7 @@ public class AdminMenu extends EmployeeMenu {
 				editUserAccount(user);
 			System.out.print("Enter New Client Address2: ");
 			input = keyboard.nextLine();
-			if (Bank.validateLettersAndNumbersOnly(input)) {
+			if (Bank.validateLettersAndNumbersOnly(input, true)) {
 				change = true;
 				user.setAddress2(input);
 			} else {
@@ -641,9 +641,9 @@ public class AdminMenu extends EmployeeMenu {
 	private void modifyRequests(String oldSSNumber, String newSSNumber) {
 		// TODO Auto-generated method stub
 		AccountRequestDAO reqImpl = AccountRequestDAO.getConnection();
-		List<AccountRequest.Request> requests = Bank.getAccountRequests();
+		List<AccountRequests.Request> requests = Bank.getAccountRequests();
 		boolean modify = false;
-		for (AccountRequest.Request request : requests) {
+		for (AccountRequests.Request request : requests) {
 			for (String ss : request.getUserSSNumbers()) {
 				if (ss.equals(oldSSNumber)) {
 					request.getUserSSNumbers().remove(ss);

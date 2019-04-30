@@ -28,8 +28,9 @@ public class Login {
 		this.password = encodedPassword;
 	}
 	
-	public void setPassword(String password, Integer accessLvl) {
+	public String setPassword(String password, Integer accessLvl) {
 		this.password = encodePassword(password, accessLvl);
+		return this.password;
 	}
 
 	private static String encodePassword(String password, Integer accessLvl) {
