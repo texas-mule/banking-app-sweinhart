@@ -443,7 +443,7 @@ public class AdminMenu extends EmployeeMenu {
 		System.out.println("5 - Change Client Phone Number");
 		System.out.println("6 - Change Client Email");
 		System.out.println("7 - Change Client Driver License");
-		System.out.println("7 - Change Client Social Security Number");
+		System.out.println("8 - Change Client Social Security Number");
 		System.out.println("9 - Return to Employee Menu");
 		System.out.println("Choice? ");
 		int choice;
@@ -604,6 +604,7 @@ public class AdminMenu extends EmployeeMenu {
 				editUserAccount(user);
 			break;
 		case 8:
+			System.out.print("Enter New Client Social Security Number: ");
 			String ssNumber = keyboard.nextLine();
 			ssNumber = ssNumber.trim();
 			boolean valid = true;

@@ -17,60 +17,14 @@ INFO  [main]: UserAccounts retrieved successfully
 INFO  [main]: Banking Application Started
 INFO  [main]: Banking Application Started
 INFO  [main]: Starting Login Menu
-INFO  [main]: Starting Login
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Decoding password and access level
-INFO  [main]: Login Completed
-INFO  [main]: Logged in User with access level 1
-INFO  [main]: Starting Client Main Menu
-INFO  [main]: Starting Account Request Menu
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: Setting minimum deposit
-INFO  [main]: AccountRequest added successfully
-INFO  [main]: Starting Client Main Menu
-INFO  [main]: Starting Login Menu
-INFO  [main]: Starting Login
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Decoding password and access level
-INFO  [main]: Login Completed
-INFO  [main]: Logged in User with access level 3
-INFO  [main]: Starting Employee Inital Menu
-INFO  [main]: Starting Admin Menu
-INFO  [main]: Starting Client Account Requests View
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Approve Pending Request Started
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Transaction added successfully
-INFO  [main]: BankAccount added successfully
-INFO  [main]: BankAccount retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: AccountRequest deleted successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Admin Menu
+INFO  [main]: Creating New User Account
 INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Encoding password and access level
+INFO  [main]: UserAccount added successfully
+INFO  [main]: User Account Successfully Created
 INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Bank Account Details
-INFO  [main]: View Account History Started
-INFO  [main]: View History Completed
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Admin Operations
-INFO  [main]: Close Account Started
-INFO  [main]: Transactions retrieved successfully
-INFO  [main]: Transaction deleted successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Transaction deleted successfully
-INFO  [main]: BankAccount deleted successfully
-INFO  [main]: Starting Admin Menu
-INFO  [main]: Starting Employee Inital Menu
 INFO  [main]: Starting Login Menu
 INFO  [main]: Starting Login
 INFO  [main]: UserAccount retrieved successfully
@@ -78,11 +32,14 @@ INFO  [main]: Decoding password and access level
 INFO  [main]: Login Completed
 INFO  [main]: Logged in User with access level 1
 INFO  [main]: Starting Client Main Menu
+INFO  [main]: Starting Client Main Menu
 INFO  [main]: Starting Account Request Menu
 INFO  [main]: AccountRequests retrieved successfully
 INFO  [main]: AccountRequests retrieved successfully
 INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: Setting minimum deposit
+INFO  [main]: AccountRequests retrieved successfully
 INFO  [main]: AccountRequest added successfully
 INFO  [main]: Starting Client Main Menu
 INFO  [main]: Starting Account Request Menu
@@ -98,82 +55,128 @@ INFO  [main]: Starting Login
 INFO  [main]: UserAccount retrieved successfully
 INFO  [main]: Decoding password and access level
 INFO  [main]: Login Completed
+INFO  [main]: Logged in User with access level 2
+INFO  [main]: Starting Employee Inital Menu
+INFO  [main]: Starting Employee Menu
+INFO  [main]: Starting Client Account Requests View
+INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Approve Pending Request Started
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Transaction added successfully
+INFO  [main]: BankAccount added successfully
+INFO  [main]: BankAccount retrieved successfully
+INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: AccountRequest deleted successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: Starting Employee Menu
+INFO  [main]: Starting Client Account Requests View
+INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Approve Pending Request Started
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Transaction added successfully
+INFO  [main]: BankAccount added successfully
+INFO  [main]: BankAccount retrieved successfully
+INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: AccountRequest deleted successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: AccountRequests retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Employee Menu
+INFO  [main]: Starting Client Account Selection Menu
+INFO  [main]: Starting Client Account Details
+INFO  [main]: Starting Employee Menu
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Bank Account Details
+INFO  [main]: View Account History Started
+INFO  [main]: View History Completed
+INFO  [main]: Starting Employee Menu
+INFO  [main]: Starting Employee Inital Menu
+INFO  [main]: Starting Login Menu
+INFO  [main]: Starting Login
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Decoding password and access level
+INFO  [main]: Login Completed
 INFO  [main]: Logged in User with access level 3
+INFO  [main]: Starting Employee Inital Menu
+INFO  [main]: Starting Client Main Menu
 INFO  [main]: Starting Employee Inital Menu
 INFO  [main]: Starting Admin Menu
 INFO  [main]: Starting Client Account Requests View
 INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Approve Pending Request Started
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Transaction added successfully
-INFO  [main]: BankAccount added successfully
-INFO  [main]: BankAccount retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: AccountRequest deleted successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Admin Menu
-INFO  [main]: Starting Client Account Requests View
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Approve Pending Request Started
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Transaction added successfully
-INFO  [main]: BankAccount added successfully
-INFO  [main]: BankAccount retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: AccountRequest deleted successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Admin Menu
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Bank Account Details
-INFO  [main]: View Account History Started
-INFO  [main]: View History Completed
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Admin Operations
-INFO  [main]: Close Account Started
-INFO  [main]: Transactions retrieved successfully
-INFO  [main]: Transaction deleted successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Transaction deleted successfully
-INFO  [main]: BankAccount deleted successfully
-INFO  [main]: Starting Admin Menu
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Bank Account Details
-INFO  [main]: View Account History Started
-INFO  [main]: View History Completed
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Starting Admin Operations
-INFO  [main]: Close Account Started
-INFO  [main]: Transactions retrieved successfully
-INFO  [main]: Transaction deleted successfully
-INFO  [main]: UserAccount retrieved successfully
-INFO  [main]: Transaction deleted successfully
-INFO  [main]: BankAccount deleted successfully
 INFO  [main]: Starting Admin Menu
 INFO  [main]: Starting Client Account Selection Menu
 INFO  [main]: Client Details
 INFO  [main]: Admin Client Operations
-INFO  [main]: Delete user Account
-INFO  [main]: AccountRequests retrieved successfully
-INFO  [main]: UserAccount deleted successfully
+INFO  [main]: Update User Account
+INFO  [main]: UserAccount updated successfully
+INFO  [main]: Update User Account
 INFO  [main]: Starting Admin Menu
 INFO  [main]: Starting Client Account Selection Menu
+INFO  [main]: Client Details
+INFO  [main]: Admin Client Operations
+INFO  [main]: Starting Admin Menu
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Bank Account Details
+INFO  [main]: View Account History Started
+INFO  [main]: View History Completed
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Admin Operations
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Transfer Funds Started
+INFO  [main]: Transaction added successfully
+INFO  [main]: Transaction added successfully
+INFO  [main]: Starting Admin Menu
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Bank Account Details
+INFO  [main]: View Account History Started
+INFO  [main]: View History Completed
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Admin Operations
+INFO  [main]: Starting Admin Menu
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Bank Account Details
+INFO  [main]: View Account History Started
+INFO  [main]: View History Completed
+INFO  [main]: UserAccount retrieved successfully
+INFO  [main]: Starting Admin Operations
 INFO  [main]: Starting Admin Menu
 INFO  [main]: Starting Employee Inital Menu
 INFO  [main]: Starting Login Menu
